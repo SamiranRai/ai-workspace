@@ -28,11 +28,19 @@ interface BatchResult {
 export function syncChatGPTHistory(
   signal?: AbortSignal,
 ): Promise<SyncSummary | null> {
-  return navigator.locks.request(
-    SYNC_LOCK_NAME,
-    { ifAvailable: true },
-    async (lock) => (lock ? runSync(signal) : null),
-  );
+  return new Promise((resolve, reject) => {
+    void navigator.locks.request(
+      SYNC_LOCK_NAME,
+      { ifAvailable: true },
+      (lock) => {
+        if (!lock) {
+          resolve(null);
+          return;
+        }
+        void runSync(signal).then(resolve, reject);
+      },
+    ).catch(reject);
+  });
 }
 
 async function runSync(signal?: AbortSignal): Promise<SyncSummary> {

@@ -1,6 +1,13 @@
+import mountApp from "../src/renderer/root-attach/observer";
+
 export default defineContentScript({
-  matches: ['*://*.google.com/*'],
+  matches: ["*://*.google.com/*"],
   main() {
-    console.log('Hello content.');
+    console.log("[ai-workspace] content script started");
+    // try {
+    //   mountApp();
+    // } catch (error) {
+    //   console.error("[ai-workspace] content script error", error);
+    // }
   },
 });

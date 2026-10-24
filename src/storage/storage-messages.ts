@@ -2,6 +2,7 @@ import type { ConversationRecord } from "../types/conversation";
 
 export const UPSERT_CONVERSATIONS_MESSAGE = "storage:upsert-conversations";
 export const GET_STORAGE_COUNTS_MESSAGE = "storage:get-counts";
+export const GET_CONVERSATIONS_MESSAGE = "storage:get-conversations";
 
 export interface UpsertConversationsRequest {
   type: typeof UPSERT_CONVERSATIONS_MESSAGE;
@@ -12,9 +13,14 @@ export interface GetStorageCountsRequest {
   type: typeof GET_STORAGE_COUNTS_MESSAGE;
 }
 
+export interface GetConversationsRequest {
+  type: typeof GET_CONVERSATIONS_MESSAGE;
+}
+
 export type StorageRequest =
   | UpsertConversationsRequest
-  | GetStorageCountsRequest;
+  | GetStorageCountsRequest
+  | GetConversationsRequest;
 
 export interface UpsertConversationsResult {
   conversationsSaved: number;
@@ -39,6 +45,11 @@ export type GetStorageCountsResponse =
   | ({ ok: true } & StorageCounts)
   | StorageFailure;
 
+export type GetConversationsResponse =
+  | ({ ok: true; conversations: ConversationRecord[] })
+  | StorageFailure;
+
 export type StorageResponse =
   | UpsertConversationsResponse
-  | GetStorageCountsResponse;
+  | GetStorageCountsResponse
+  | GetConversationsResponse;

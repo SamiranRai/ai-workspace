@@ -3,8 +3,10 @@ import { browser } from "wxt/browser";
 import type { ConversationRecord } from "../types/conversation";
 import {
   GET_STORAGE_COUNTS_MESSAGE,
+  GET_CONVERSATIONS_MESSAGE,
   UPSERT_CONVERSATIONS_MESSAGE,
   type GetStorageCountsResponse,
+  type GetConversationsResponse,
   type StorageCounts,
   type StorageRequest,
   type StorageResponse,
@@ -54,4 +56,14 @@ export async function getStorageCounts(): Promise<StorageCounts> {
     conversationCount: response.conversationCount,
     messageCount: response.messageCount,
   };
+}
+
+export async function getConversations(): Promise<ConversationRecord[]> {
+  const response = await send<GetConversationsResponse>({
+    type: GET_CONVERSATIONS_MESSAGE,
+  });
+  if (!response.ok) {
+    throw new Error(`Reading conversations failed: ${response.error}`);
+  }
+  return response.conversations;
 }

@@ -7,6 +7,7 @@ import {
 } from "../src/storage/conversation-validator";
 import {
   GET_STORAGE_COUNTS_MESSAGE,
+  GET_CONVERSATIONS_MESSAGE,
   UPSERT_CONVERSATIONS_MESSAGE,
   type StorageFailure,
   type StorageResponse,
@@ -16,6 +17,7 @@ const CHATGPT_ORIGIN = "https://chatgpt.com";
 const STORAGE_MESSAGE_TYPES: ReadonlySet<unknown> = new Set([
   UPSERT_CONVERSATIONS_MESSAGE,
   GET_STORAGE_COUNTS_MESSAGE,
+  GET_CONVERSATIONS_MESSAGE,
 ]);
 
 const repository = new ConversationRepository();
@@ -40,7 +42,7 @@ async function handleStorageMessage(
   message: Record<string, unknown>,
   senderUrl: string | undefined,
 ): Promise<StorageResponse> {
-  if (!isChatGPTSender(senderUrl)) {
+  if (!isAllowedSender(senderUrl)) {
     return failure("Storage requests are only accepted from ChatGPT.");
   }
 
@@ -57,6 +59,9 @@ async function handleStorageMessage(
       case GET_STORAGE_COUNTS_MESSAGE:
         return { ok: true, ...(await repository.getCounts()) };
 
+      case GET_CONVERSATIONS_MESSAGE:
+        return { ok: true, conversations: await repository.getAll() };
+
       default:
         return failure("Unsupported storage message.");
     }
@@ -68,11 +73,15 @@ async function handleStorageMessage(
   }
 }
 
-function isChatGPTSender(url: string | undefined): boolean {
+function isAllowedSender(url: string | undefined): boolean {
   if (!url) return false;
 
   try {
-    return new URL(url).origin === CHATGPT_ORIGIN;
+    const origin = new URL(url).origin;
+    return (
+      origin === CHATGPT_ORIGIN ||
+      origin === new URL(browser.runtime.getURL("")).origin
+    );
   } catch {
     return false;
   }

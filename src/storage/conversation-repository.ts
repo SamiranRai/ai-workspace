@@ -31,6 +31,10 @@ export class ConversationRepository {
     return db.records.get(key);
   }
 
+  getAll(): Promise<ConversationRecord[]> {
+    return db.records.toArray();
+  }
+
   async deleteByKey(key: string): Promise<void> {
     await db.records.delete(key);
   }
