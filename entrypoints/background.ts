@@ -1,10 +1,12 @@
 import { browser } from "wxt/browser";
 
 import { ConversationRepository } from "../src/storage/conversation-repository";
+
 import {
   isConversationRecordList,
   isRecord,
 } from "../src/storage/conversation-validator";
+
 import {
   GET_STORAGE_COUNTS_MESSAGE,
   GET_CONVERSATIONS_MESSAGE,
@@ -13,7 +15,14 @@ import {
   type StorageResponse,
 } from "../src/storage/storage-messages";
 
-const CHATGPT_ORIGIN = "https://chatgpt.com";
+// AI provider origins allowed to access shared conversation storage.
+const ALLOWED_PAGE_ORIGINS: ReadonlySet<string> = new Set([
+  "https://chatgpt.com",
+  "https://claude.ai",
+  "https://grok.com",
+  "https://gemini.google.com",
+]);
+
 const STORAGE_MESSAGE_TYPES: ReadonlySet<unknown> = new Set([
   UPSERT_CONVERSATIONS_MESSAGE,
   GET_STORAGE_COUNTS_MESSAGE,
@@ -27,8 +36,20 @@ export default defineBackground(() => {
     // Leave unrelated extension messages to their own handlers.
     if (!isStorageMessage(message)) return;
 
-    void handleStorageMessage(message, sender.url).then(sendResponse);
-    return true; // keeps the channel open for the async response
+    // Handle the request asynchronously and keep the response channel open.
+    void handleStorageMessage(message, sender.url)
+      .then(sendResponse)
+      .catch((error: unknown) => {
+        console.error("[storage] Unexpected message handler failure", error);
+
+        sendResponse(
+          failure(
+            error instanceof Error ? error.message : "Unknown storage error.",
+          ),
+        );
+      });
+
+    return true;
   });
 });
 
@@ -43,30 +64,55 @@ async function handleStorageMessage(
   senderUrl: string | undefined,
 ): Promise<StorageResponse> {
   if (!isAllowedSender(senderUrl)) {
-    return failure("Storage requests are only accepted from ChatGPT.");
+    return failure(
+      "Storage requests are only accepted from supported AI pages or extension pages.",
+    );
   }
 
   const { type, conversations } = message;
 
   try {
     switch (type) {
-      case UPSERT_CONVERSATIONS_MESSAGE:
+      case UPSERT_CONVERSATIONS_MESSAGE: {
         if (!isConversationRecordList(conversations)) {
           return failure("Invalid conversations payload.");
         }
-        return { ok: true, ...(await repository.upsertMany(conversations)) };
 
-      case GET_STORAGE_COUNTS_MESSAGE:
-        return { ok: true, ...(await repository.getCounts()) };
+        const result = await repository.upsertMany(conversations);
 
-      case GET_CONVERSATIONS_MESSAGE:
-        return { ok: true, conversations: await repository.getAll() };
+        return {
+          ok: true,
+          ...result,
+        };
+      }
+
+      case GET_STORAGE_COUNTS_MESSAGE: {
+        const counts = await repository.getCounts();
+
+        return {
+          ok: true,
+          ...counts,
+        };
+      }
+
+      case GET_CONVERSATIONS_MESSAGE: {
+        const allConversations = await repository.getAll();
+
+        return {
+          ok: true,
+          conversations: allConversations,
+        };
+      }
 
       default:
         return failure("Unsupported storage message.");
     }
   } catch (error) {
-    console.error("[storage] request failed", error);
+    console.error("[storage] Request failed", {
+      type,
+      error,
+    });
+
     return failure(
       error instanceof Error ? error.message : "Unknown storage error.",
     );
@@ -78,15 +124,24 @@ function isAllowedSender(url: string | undefined): boolean {
 
   try {
     const origin = new URL(url).origin;
-    return (
-      origin === CHATGPT_ORIGIN ||
-      origin === new URL(browser.runtime.getURL("")).origin
-    );
+
+    // Allow only explicitly supported AI provider origins.
+    if (ALLOWED_PAGE_ORIGINS.has(origin)) {
+      return true;
+    }
+
+    // Allow pages belonging to this browser extension.
+    const extensionOrigin = new URL(browser.runtime.getURL("")).origin;
+
+    return origin === extensionOrigin;
   } catch {
     return false;
   }
 }
 
 function failure(error: string): StorageFailure {
-  return { ok: false, error };
+  return {
+    ok: false,
+    error,
+  };
 }
