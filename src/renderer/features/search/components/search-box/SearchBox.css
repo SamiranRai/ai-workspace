@@ -1,0 +1,205 @@
+.search-box {
+  box-sizing: border-box;
+  display: flex;
+  position: relative;
+  width: 100%;
+  padding: 12px 10px;
+  justify-content: space-between;
+  align-items: center;
+  align-self: stretch;
+  z-index: 2;
+  border-radius: 17px;
+  border: 1px solid hsl(0deg 0% 36.6173%);
+  background: hsl(0deg 0% 21.5686%);
+}
+
+.search-box:focus-within {
+  border-color: #318acb;
+  box-shadow: 0 0 0 2px rgb(49 138 203 / 35%);
+}
+
+.search-box__input-container {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.search-box__search-icon {
+  flex: 0 0 auto;
+  color: #bcbab6;
+}
+
+.search-box__clear {
+  width: 25px;
+  height: 25px;
+  flex: 0 0 auto;
+  padding: 0;
+  border-radius: 50%;
+  background: #080808;
+  color: #bcbab6;
+}
+
+.search-box__clear:hover {
+  background: #000;
+}
+
+.search-box__clear svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+}
+
+.search-box__input {
+  width: 420px;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: hsl(40deg 4.2857% 72.549%);
+  font-family: "SF Pro Text";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 138%; /* 24.84px */
+  letter-spacing: -0.216px;
+}
+
+.search-box__input::placeholder {
+  color: #bcbab6;
+  opacity: 1;
+}
+
+.search-box__input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.search-box__platform-trigger {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border: 1.144px solid #535353;
+  border-radius: 10px;
+  background: #121212;
+  color: #bcbab6;
+  cursor: pointer;
+  font: inherit;
+}
+
+.search-box__platform-content-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 4.577px;
+}
+
+.search-box__provider-icon {
+  width: 17.462px;
+  height: 17.462px;
+  flex: 0 0 auto;
+}
+
+.search-box__platform-summary {
+  font-size: 14.875px;
+  font-weight: 500;
+  letter-spacing: -0.1785px;
+  line-height: 1.38;
+  white-space: nowrap;
+}
+
+.search-box__platform-dropdown {
+  padding: 0;
+  color: #bcbab6;
+}
+
+.search-box__platform-menu {
+  position: absolute;
+  z-index: 10000;
+  top: calc(100% + 6px);
+  right: 10px;
+  display: flex;
+  min-width: 150px;
+  padding: 3px;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid #3c3c3c;
+  border-radius: 13px;
+  background: #121212;
+  box-shadow: 0 4px 10px rgb(0 0 0 / 25%);
+}
+
+.search-box__platform-option {
+  box-sizing: border-box;
+  display: flex;
+  position: relative;
+  width: 100%;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: #bcbab6;
+  cursor: pointer;
+  font-size: 14.875px;
+  font-weight: 500;
+  letter-spacing: -0.1785px;
+  line-height: 1.38;
+  text-align: left;
+}
+
+.search-box__platform-option:hover {
+  background: #2d2d2d;
+}
+
+.search-box__platform-checkbox {
+  position: absolute;
+  top: 4px;
+  left: 6px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.search-box__platform-checkbox-visual {
+  box-sizing: border-box;
+  display: grid;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  border: 2px solid #969696;
+  border-radius: 2px;
+  place-items: center;
+}
+
+.search-box__platform-checkbox:checked + .search-box__platform-checkbox-visual,
+.search-box__platform-checkbox-visual.is-checked {
+  border-color: #bcbab6;
+  background: #bcbab6;
+}
+
+.search-box__platform-checkbox:checked + .search-box__platform-checkbox-visual::after,
+.search-box__platform-checkbox-visual.is-checked::after {
+  width: 9px;
+  height: 5px;
+  border-bottom: 2px solid #3c3c3c;
+  border-left: 2px solid #3c3c3c;
+  content: "";
+  transform: translateY(-1px) rotate(-45deg);
+}
+
+.search-box__platform-checkbox:focus-visible + .search-box__platform-checkbox-visual,
+.search-box__platform-select-all:focus-visible .search-box__platform-checkbox-visual {
+  outline: 2px solid #318acb;
+  outline-offset: 2px;
+}
+
+.search-box__select-all-icon {
+  width: 17.462px;
+  height: 17.462px;
+  flex: 0 0 17.462px;
+  color: #bcbab6;
+}

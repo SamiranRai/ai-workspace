@@ -1,0 +1,16 @@
+@import "./tokens/colors.css";
+@import "./tokens/typography.css";
+
+:host {
+  color: var(--color-text-primary);
+  font-family: var(--font-family-sans);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button,
+input {
+  font-family: inherit;
+}

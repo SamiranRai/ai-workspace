@@ -1,0 +1,45 @@
+.platform-chips {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+  list-style: none;
+}
+
+.platform-chips__chip__content {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.platform-chips__chip {
+  display: flex;
+  padding: 3px 6px;
+  align-items: center;
+  gap: 4px;
+  border-radius: 8px;
+  border: 1px solid hsl(0deg 0% 23.4075%);
+  background: hsl(0deg 0% 7.0588%);
+}
+
+.platform-chips__chip__label {
+  color: #bcbab6;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.156px;
+  line-height: 1.38;
+}
+
+.platform-chips__chip .search-box__provider-icon {
+  width: 13.5px;
+  height: 13.5px;
+}
+
+.platform-chips__chip__remove {
+  padding: 0;
+  color: #e50909;
+}
+
+.platform-chips__chip__remove svg {
+  fill: currentColor;
+}

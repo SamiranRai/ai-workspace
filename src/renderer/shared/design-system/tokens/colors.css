@@ -1,0 +1,15 @@
+:root {
+  --color-surface-panel: #1e1e1e;
+  --color-surface-input: #373737;
+  --color-surface-subtle: #3c3c3c;
+  --color-surface-message: #464646;
+  --color-surface-dark: #121212;
+  --color-border-panel: #333;
+  --color-border-input: #5d5d5d;
+  --color-border-subtle: #3c3c3c;
+  --color-text-primary: #bcbab6;
+  --color-text-muted: #858585;
+  --color-accent-danger: #e50909;
+  --color-accent-user: #39b54a;
+  --color-accent-assistant: #b6a922;
+}
