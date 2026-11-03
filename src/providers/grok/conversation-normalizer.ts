@@ -60,6 +60,7 @@ export function normalizeGrokConversation(
     messages,
     sourceSignature: createSignature(title, isArchived, messages),
     lastSyncedAt: syncedAt,
+    deletedAtSource: null,
   };
 }
 

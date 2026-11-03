@@ -54,6 +54,7 @@ export function normalizeClaudeConversation(
     messages,
     sourceSignature: createSignature(title, isArchived, messages),
     lastSyncedAt: syncedAt,
+    deletedAtSource: null,
   };
 }
 

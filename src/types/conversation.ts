@@ -40,4 +40,5 @@ export interface ConversationRecord {
   // Used to detect changes during synchronization
   sourceSignature: string;
   lastSyncedAt: number;
+  deletedAtSource: number | null;
 }

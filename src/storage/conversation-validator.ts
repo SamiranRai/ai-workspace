@@ -5,6 +5,7 @@ import {
   type ConversationRecord,
   type StoredMessage,
 } from "../types/conversation";
+import type { SyncCheckpoint } from "../types/sync";
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -31,6 +32,7 @@ function isConversationRecord(value: unknown): value is ConversationRecord {
     typeof value.url === "string" &&
     isTimestampOrNull(value.createdAt) &&
     isTimestampOrNull(value.updatedAt) &&
+    isTimestampOrNull(value.deletedAtSource) &&
     typeof value.isArchived === "boolean" &&
     Array.isArray(value.messages) &&
     value.messages.every(isStoredMessage) &&
@@ -59,7 +61,7 @@ function isOneOf<T extends string>(
   );
 }
 
-function isNonEmptyString(value: unknown): value is string {
+export function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim() !== "";
 }
 
@@ -69,4 +71,19 @@ function isFiniteNumber(value: unknown): value is number {
 
 function isTimestampOrNull(value: unknown): boolean {
   return value === null || isFiniteNumber(value);
+}
+
+export function isSyncCheckpoint(value: unknown): value is SyncCheckpoint {
+  return (
+    isRecord(value) &&
+    isNonEmptyString(value.key) &&
+    isRecord(value.cursor) &&
+    isNonEmptyString(value.cursor.indexKey) &&
+    isNonEmptyString(value.cursor.primaryKey) &&
+    isFiniteNumber(value.checkedAt)
+  );
+}
+
+export function isStringList(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every(isNonEmptyString);
 }

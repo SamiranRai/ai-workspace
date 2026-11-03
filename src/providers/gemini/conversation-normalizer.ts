@@ -61,6 +61,7 @@ export function normalizeGeminiConversation(
     messages,
     sourceSignature: createSignature(title, isArchived, messages),
     lastSyncedAt: syncedAt,
+    deletedAtSource: null,
   };
 }
 

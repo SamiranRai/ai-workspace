@@ -44,7 +44,7 @@ export function normalizeChatGPTConversation(
   const isArchived = source.is_archived === true;
 
   return {
-    key: `${PLATFORM}:${accountScope}:${id}`,
+    key: `${PLATFORM}:${id}`,
     id,
     platform: PLATFORM,
     accountScope,
@@ -56,6 +56,7 @@ export function normalizeChatGPTConversation(
     messages,
     sourceSignature: createSignature(title, isArchived, messages),
     lastSyncedAt: syncedAt,
+    deletedAtSource: null,
   };
 }
 
@@ -83,9 +84,13 @@ function toRole(value: unknown): MessageRole {
 }
 
 /** Returns epoch milliseconds, or null when the value is missing or unusable. */
-function toTimestamp(value: unknown): number | null {
+const ZONELESS_ISO = /^\d{4}-\d{2}-\d{2}T[\d:.]+$/;
+
+export function toTimestamp(value: unknown): number | null {
   if (typeof value === "string") {
-    const milliseconds = Date.parse(value);
+    const milliseconds = Date.parse(
+      ZONELESS_ISO.test(value) ? `${value}Z` : value,
+    );
     return Number.isNaN(milliseconds) ? null : milliseconds;
   }
 

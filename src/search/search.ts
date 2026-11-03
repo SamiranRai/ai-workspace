@@ -91,6 +91,7 @@ export function searchConversations(
   }
 
   const conversations = records
+    .filter((conversation) => conversation.deletedAtSource === null)
     .map((conversation): ConversationSearchResult | null => {
       const titleMatch = normalize(conversation.title).includes(normalizedQuery);
       const matches = conversation.messages
