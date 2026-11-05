@@ -13,25 +13,18 @@ class AiWorkspaceDatabase extends Dexie {
     super("AiWorkspaceDB");
 
     this.version(1).stores({ records: RECORD_INDEXES });
+
+    // v2: adds the bookmark table and re-keys existing records to `platform:id`
+    // (the old key also contained the account scope, which would create duplicates).
     this.version(2)
       .stores({ records: RECORD_INDEXES, syncState: "&key" })
       .upgrade(async (tx) => {
         const table = tx.table<ConversationRecord, string>("records");
         const all = await table.toArray();
         await table.clear();
-        const merged = new Map<string, ConversationRecord>();
-        for (const record of all) {
-          const next = {
-            ...record,
-            key: `${record.platform}:${record.id}`,
-            deletedAtSource: record.deletedAtSource ?? null,
-          };
-          const current = merged.get(next.key);
-          if (!current || next.lastSyncedAt >= current.lastSyncedAt) {
-            merged.set(next.key, next);
-          }
-        }
-        await table.bulkPut([...merged.values()]);
+        await table.bulkPut(
+          all.map((record) => ({ ...record, key: `${record.platform}:${record.id}` })),
+        );
       });
   }
 }

@@ -103,6 +103,40 @@ export class ChatGPTSourceReader {
     });
   }
 
+  /** The most recently updated metadata entries, newest first. */
+  async readNewestMetadata(
+    limit = 1,
+    signal?: AbortSignal,
+  ): Promise<SourceRecord[]> {
+    const records: SourceRecord[] = [];
+
+    return this.readOnly(METADATA_STORE, signal, (store) => {
+      const request = store.index(UPDATE_TIME_INDEX).openCursor(null, "prev");
+
+      request.onsuccess = () => {
+        const cursor = request.result;
+        if (!cursor || records.length >= limit) return;
+
+        records.push({
+          primaryKey: cursor.primaryKey,
+          indexKey: cursor.key,
+          value: cursor.value,
+        });
+        cursor.continue();
+      };
+
+      return () => records;
+    });
+  }
+
+  /** Position of the newest metadata entry, or null when the store is empty. */
+  async readHead(signal?: AbortSignal): Promise<SourceCursor | null> {
+    const [newest] = await this.readNewestMetadata(1, signal);
+    return newest
+      ? { indexKey: newest.indexKey, primaryKey: newest.primaryKey }
+      : null;
+  }
+
   /** Read full conversation records by ID, preserving request order. */
   async getConversationsByIds(
     ids: string[],
@@ -113,7 +147,6 @@ export class ChatGPTSourceReader {
         `Read no more than ${MAX_LOOKUP_BATCH_SIZE} conversations per batch.`,
       );
     }
-
     if (!ids.length) return [];
 
     const records: unknown[] = new Array(ids.length).fill(null);
@@ -127,48 +160,6 @@ export class ChatGPTSourceReader {
 
       return () =>
         ids.map((requestedId, i) => ({ requestedId, record: records[i] }));
-    });
-  }
-
-  /** Read newest metadata entries first. */
-  async readNewestMetadata(
-    limit = 1,
-    signal?: AbortSignal,
-  ): Promise<SourceRecord[]> {
-    const records: SourceRecord[] = [];
-    const normalizedLimit = Math.max(1, Math.floor(limit));
-
-    return this.readOnly(METADATA_STORE, signal, (store) => {
-      const request = store.index(UPDATE_TIME_INDEX).openCursor(null, "prev");
-      request.onsuccess = () => {
-        const cursor = request.result;
-        if (!cursor || records.length >= normalizedLimit) return;
-        records.push({
-          primaryKey: cursor.primaryKey,
-          indexKey: cursor.key,
-          value: cursor.value,
-        });
-        cursor.continue();
-      };
-      return () => records;
-    });
-  }
-
-  async readHead(signal?: AbortSignal): Promise<SourceCursor | null> {
-    const [newest] = await this.readNewestMetadata(1, signal);
-    return newest
-      ? { indexKey: newest.indexKey, primaryKey: newest.primaryKey }
-      : null;
-  }
-
-  /** Read all metadata, including entries without an update-time index value. */
-  async readAllMetadata(signal?: AbortSignal): Promise<unknown[]> {
-    let values: unknown[] = [];
-    return this.readOnly(METADATA_STORE, signal, (store) => {
-      store.getAll().onsuccess = (event) => {
-        values = (event.target as IDBRequest<unknown[]>).result;
-      };
-      return () => values;
     });
   }
 
@@ -268,11 +259,6 @@ function isAtOrBefore(cursor: IDBCursor, checkpoint: SourceCursor): boolean {
   const byIndex = indexedDB.cmp(cursor.key, checkpoint.indexKey);
   if (byIndex !== 0) return byIndex < 0;
   return indexedDB.cmp(cursor.primaryKey, checkpoint.primaryKey) <= 0;
-}
-
-export function compareCursors(a: SourceCursor, b: SourceCursor): number {
-  const byIndex = indexedDB.cmp(a.indexKey, b.indexKey);
-  return byIndex !== 0 ? byIndex : indexedDB.cmp(a.primaryKey, b.primaryKey);
 }
 
 function copyKeyPath(keyPath: KeyPath): KeyPath {

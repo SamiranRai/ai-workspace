@@ -101,6 +101,31 @@ export class GeminiSourceReader {
     });
   }
 
+  async readNewest(limit = 10, signal?: AbortSignal): Promise<SourceRecord[]> {
+    const records: SourceRecord[] = [];
+    return this.readOnly(signal, (store) => {
+      const request = store.index(UPDATE_TIME_INDEX).openCursor(null, "prev");
+      request.onsuccess = () => {
+        const cursor = request.result;
+        if (!cursor || records.length >= limit) return;
+        records.push({
+          primaryKey: cursor.primaryKey,
+          indexKey: cursor.key,
+          value: cursor.value,
+        });
+        cursor.continue();
+      };
+      return () => records;
+    });
+  }
+
+  async readHead(signal?: AbortSignal): Promise<SourceCursor | null> {
+    const [record] = await this.readNewest(1, signal);
+    return record
+      ? { indexKey: record.indexKey, primaryKey: record.primaryKey }
+      : null;
+  }
+
   close(): void {
     this.database?.close();
     this.database = null;

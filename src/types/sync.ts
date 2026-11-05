@@ -1,16 +1,5 @@
-export interface CheckpointCursor {
-  indexKey: string;
-  primaryKey: string;
-}
-
 export interface SyncCheckpoint {
-  key: string;
-  cursor: CheckpointCursor;
-  checkedAt: number;
-}
-
-export interface ConversationDigest {
-  id: string;
-  messageCount: number;
-  deletedAtSource: number | null;
+  key: string; // the platform, e.g. "chatgpt"
+  cursor: string; // opaque: only that provider's source understands it
+  checkedAt: number; // epoch ms of the last run that completed
 }

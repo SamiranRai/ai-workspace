@@ -42,7 +42,7 @@ export function normalizeClaudeConversation(
   const isArchived = source.is_archived === true || source.isArchived === true;
 
   return {
-    key: `${PLATFORM}:${accountScope}:${id}`,
+    key: `${PLATFORM}:${id}`,
     id,
     platform: PLATFORM,
     accountScope,

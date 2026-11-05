@@ -16,6 +16,9 @@ const CONVERSATION_URL_PREFIX = "https://chatgpt.com/c/";
 // Values below this are Unix seconds, above it are milliseconds.
 const SECONDS_CUTOFF = 100_000_000_000;
 
+// ChatGPT's timestamps are UTC. A string without a zone must not be read as local time.
+const ZONELESS_ISO = /^\d{4}-\d{2}-\d{2}T[\d:.]+$/;
+
 const KNOWN_ROLES: ReadonlySet<string> = new Set([
   "user",
   "assistant",
@@ -44,6 +47,7 @@ export function normalizeChatGPTConversation(
   const isArchived = source.is_archived === true;
 
   return {
+    // The key is platform + conversation id only. Conversation ids are globally unique.
     key: `${PLATFORM}:${id}`,
     id,
     platform: PLATFORM,
@@ -84,8 +88,6 @@ function toRole(value: unknown): MessageRole {
 }
 
 /** Returns epoch milliseconds, or null when the value is missing or unusable. */
-const ZONELESS_ISO = /^\d{4}-\d{2}-\d{2}T[\d:.]+$/;
-
 export function toTimestamp(value: unknown): number | null {
   if (typeof value === "string") {
     const milliseconds = Date.parse(

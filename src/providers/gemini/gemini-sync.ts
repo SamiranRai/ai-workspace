@@ -34,7 +34,7 @@ export async function syncGeminiHistory(
 
   return navigator.locks.request(
     SYNC_LOCK_NAME,
-    { ifAvailable: true, signal },
+    { signal },
     async (lock) => {
       if (!lock) return null;
       return runSync(signal);
