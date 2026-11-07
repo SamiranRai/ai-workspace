@@ -28,6 +28,9 @@
   cursor: pointer;
   font-size: var(--text-label);
   line-height: var(--line-height-relaxed);
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
 }
 
 .results-summary__filter svg {
@@ -38,4 +41,9 @@
 
 .results-summary__filter--active {
   background: #454545;
+}
+
+.results-summary__filter:hover {
+  border-color: #484848;
+  background: #484848;
 }

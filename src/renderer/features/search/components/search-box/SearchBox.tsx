@@ -11,11 +11,11 @@ import {
   CloseIcon,
   DoneAllIcon,
 } from "../../../../shared/components/Icons";
+import IconButton from "../../../../shared/components/IconButton";
 import ProviderIcon from "./ProviderIcon";
 import { PROVIDER_LABELS } from "./provider-labels";
 import { registerStyles } from "../../../../shared/shadow-styles";
 import css from "./SearchBox.css?inline";
-import IconButton from "../../../../shared/components/IconButton";
 registerStyles(css);
 
 const DEFAULT_PLACEHOLDER = "Search your AI conversations…";
@@ -192,6 +192,7 @@ const SearchBox = ({
       ref={containerRef}
       className={`search-box ${className}`.trim()}
       data-platform-count={selectedPlatforms.length}
+      onMouseDown={(event) => event.stopPropagation()}
     >
       <div className="search-box__input-container">
         {searchValue ? (
@@ -200,7 +201,7 @@ const SearchBox = ({
             ariaLabel="Clear search"
             onClick={() => {
               onSearchValueChange("");
-              inputRef.current?.focus();
+              inputRef.current?.focus({ preventScroll: true });
             }}
           >
             <CloseIcon size={18} />

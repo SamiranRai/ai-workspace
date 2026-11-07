@@ -11,11 +11,13 @@ import { useRecentSearches } from "./useRecentSearches";
 interface UseSearchPanelOptions {
   searchConversations: SearchConversations;
   initialPlatforms: readonly AIProvider[];
+  originPlatform: AIProvider;
 }
 
 export const useSearchPanel = ({
   searchConversations,
   initialPlatforms,
+  originPlatform,
 }: UseSearchPanelOptions) => {
   const [query, setQuery] = useState("");
   const [platforms, setPlatforms] = useState<readonly AIProvider[]>(() => {
@@ -73,8 +75,12 @@ export const useSearchPanel = ({
   }, [addSearch, query]);
 
   const changePlatforms = (next: readonly AIProvider[]) => {
-    // At least one platform must stay selected
-    if (next.length === 0) return;
+    // Keep one provider selected. If the final non-origin provider is removed,
+    // restore the current site's provider as the useful default.
+    if (next.length === 0) {
+      setPlatforms([originPlatform]);
+      return;
+    }
 
     setPlatforms(next);
   };

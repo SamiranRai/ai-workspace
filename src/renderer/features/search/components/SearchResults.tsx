@@ -4,7 +4,6 @@ import ResultsSummary from "./ResultsSummary";
 
 interface SearchResultsProps {
   state: SearchState;
-  isSinglePlatform: boolean;
   isFilterActive?: boolean;
   onFilterClick?: () => void;
   onRetry: () => void;
@@ -16,7 +15,6 @@ interface SearchResultsProps {
 
 const SearchResults = ({
   state,
-  isSinglePlatform,
   isFilterActive,
   onFilterClick,
   onRetry,
@@ -65,7 +63,6 @@ const SearchResults = ({
           />
           <ConversationList
             results={state.results}
-            expandFirst={isSinglePlatform}
             onSelectMessage={onSelectMessage}
           />
         </>

@@ -1,3 +1,5 @@
 .message-row {
+  box-sizing: border-box;
+  background: #0f0f0f;
   white-space: normal;
 }

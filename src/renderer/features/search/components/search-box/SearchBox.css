@@ -9,13 +9,17 @@
   align-self: stretch;
   z-index: 2;
   border-radius: 17px;
-  border: 1px solid hsl(0deg 0% 36.6173%);
-  background: hsl(0deg 0% 21.5686%);
+  border: 1px solid #383838;
+  background: #262626;
+  transition:
+    border-color 150ms ease,
+    background-color 150ms ease,
+    box-shadow 150ms ease;
 }
 
 .search-box:focus-within {
-  border-color: #318acb;
-  box-shadow: 0 0 0 2px rgb(49 138 203 / 35%);
+  border: 4.5px solid #107cad;
+  box-shadow: 0 0 0 1px rgb(16 124 173 / 18%);
 }
 
 .search-box__input-container {
@@ -36,12 +40,12 @@
   flex: 0 0 auto;
   padding: 0;
   border-radius: 50%;
-  background: #080808;
-  color: #bcbab6;
+  background: #aaa;
+  color: #262626;
 }
 
 .search-box__clear:hover {
-  background: #000;
+  background: #bcbab6;
 }
 
 .search-box__clear svg {
@@ -58,7 +62,7 @@
   outline: 0;
   background: transparent;
   color: hsl(40deg 4.2857% 72.549%);
-  font-family: "SF Pro Text";
+  font-family: var(--font-family-sans);
   font-size: 18px;
   font-style: normal;
   font-weight: 500;
@@ -81,12 +85,23 @@
   align-items: center;
   gap: 8px;
   padding: 4px 6px;
-  border: 1.144px solid #535353;
+  border: 1.144px solid #3d3d3d;
   border-radius: 10px;
   background: #121212;
   color: #bcbab6;
   cursor: pointer;
   font: inherit;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+}
+
+.search-box__platform-trigger:hover,
+.search-box__platform-trigger[aria-expanded="true"] {
+  border-color: #5d5d5d;
+  background: #1c1c1c;
+  color: #c3c3c3;
 }
 
 .search-box__platform-content-container {
@@ -128,6 +143,7 @@
   border-radius: 13px;
   background: #121212;
   box-shadow: 0 4px 10px rgb(0 0 0 / 25%);
+  animation: platform-menu-enter 120ms ease-out both;
 }
 
 .search-box__platform-option {
@@ -150,7 +166,11 @@
 }
 
 .search-box__platform-option:hover {
-  background: #2d2d2d;
+  background: #262626;
+}
+
+.search-box__platform-option:active {
+  background: #303030;
 }
 
 .search-box__platform-checkbox {
@@ -202,4 +222,28 @@
   height: 17.462px;
   flex: 0 0 17.462px;
   color: #bcbab6;
+}
+
+@keyframes platform-menu-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-3px) scale(0.98);
+    transform-origin: top right;
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .search-box,
+  .search-box__platform-trigger {
+    transition: none;
+  }
+
+  .search-box__platform-menu {
+    animation: none;
+  }
 }

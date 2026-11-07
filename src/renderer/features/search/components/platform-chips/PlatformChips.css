@@ -1,5 +1,6 @@
 .platform-chips {
   display: flex;
+  gap: 6px;
   margin: 0;
   padding: 0;
   align-items: center;
@@ -19,7 +20,15 @@
   gap: 4px;
   border-radius: 8px;
   border: 1px solid hsl(0deg 0% 23.4075%);
-  background: hsl(0deg 0% 7.0588%);
+  background: #262626;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+
+.platform-chips__chip:hover {
+  border-color: #4a4a4a;
+  background: #383838;
 }
 
 .platform-chips__chip__label {
@@ -37,9 +46,18 @@
 
 .platform-chips__chip__remove {
   padding: 0;
-  color: #e50909;
+  color: #bcbab6;
 }
 
 .platform-chips__chip__remove svg {
   fill: currentColor;
+}
+
+.platform-chips__chip__remove:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.platform-chips__chip__remove:not(:disabled):hover {
+  background: #484848;
 }

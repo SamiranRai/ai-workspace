@@ -5,7 +5,7 @@
   height: 100vh;
   padding: 24px;
   place-items: start center;
-  background: rgb(0 0 0 / 42%);
+  background: hsla(0, 0%, 8%, 0.85);
   backdrop-filter: blur(7px);
   pointer-events: auto;
 }

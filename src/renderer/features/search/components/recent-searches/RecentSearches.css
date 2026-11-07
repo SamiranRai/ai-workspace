@@ -29,6 +29,9 @@
   color: #bcbab6;
   cursor: pointer;
   font: inherit;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
 }
 
 .recent-searches__clear {
@@ -45,7 +48,7 @@
 .recent-searches__clear svg {
   width: 16.571px;
   height: 16.571px;
-  color: #e50909;
+  color: #bcbab6;
   fill: currentColor;
 }
 
@@ -69,5 +72,6 @@
 
 .recent-searches__clear:hover,
 .recent-searches__item:hover {
+  border-color: #484848;
   background: #484848;
 }

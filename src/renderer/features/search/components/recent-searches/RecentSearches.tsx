@@ -1,6 +1,6 @@
 import { useId } from "react";
 
-import { TrashIcon } from "../../../../shared/components/Icons";
+import { CloseIcon } from "../../../../shared/components/Icons";
 import { registerStyles } from "../../../../shared/shadow-styles";
 import css from "./RecentSearches.css?inline";
 
@@ -28,7 +28,7 @@ const RecentSearches = ({ searches, onSelect, onClear }: RecentSearchesProps) =>
           type="button"
           onClick={onClear}
         >
-          <TrashIcon aria-hidden="true" size={16.5}/>
+          <CloseIcon aria-hidden="true" size={16.571} />
           Clear All
         </button>
       </div>

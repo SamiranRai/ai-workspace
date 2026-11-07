@@ -1,10 +1,42 @@
 .search-panel {
   position: relative;
-  width: min(625px, 100%);
+  width: min(625px, calc(100vw - 32px));
   max-height: calc(100vh - 48px);
   color: #bcbab6;
-  font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+  animation: search-panel-enter 180ms ease-out both;
+}
+
+.search-panel__close {
+  position: absolute;
+  z-index: 2;
+  top: -19px;
+  right: -39px;
+  display: inline-flex;
+  width: 38px;
+  height: 38px;
+  padding: 7px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #262626;
+  border-radius: 18px;
+  background: #0f0f0f;
+  color: #bcbab6;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    transform 150ms ease;
+}
+
+.search-panel__close:hover {
+  background: #262626;
+  color: #fff;
+  transform: scale(1.04);
+}
+
+.search-panel__close:focus-visible {
+  outline: 2px solid #318acb;
+  outline-offset: 2px;
 }
 
 .search-panel__body {
@@ -14,48 +46,45 @@
   box-sizing: border-box;
   width: 100%;
   max-height: calc(100vh - 48px);
-  padding: 24px;
+  padding: 18px 17.5px;
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
 
   border-radius: 26px;
-  border: 1px solid hsl(0deg 0% 19.9125%);
-  background: hsl(0deg 0% 11.7647%);
-  box-shadow: 0 4px 10.2px 0 hsl(0deg 0% 0% / 0.25);
+  border: 1px solid #262626;
+  background: #0f0f0f;
+  box-shadow: 0 4px 5.1px rgb(0 0 0 / 25%);
   overflow: visible;
 }
 
 .search-panel__results {
+  box-sizing: border-box;
   width: 100%;
   flex: 1 1 auto;
   min-height: 0;
+  background: #0f0f0f;
   overflow: auto;
 }
 
-.search-panel__close {
-  position: absolute;
-  z-index: 1;
-  top: -18px;
-  right: -18px;
-  display: grid;
-  width: 36px;
-  height: 36px;
-  padding: 8px;
-  place-items: center;
-  border: 0;
-  border-radius: 50%;
-  background: #333;
-  color: #e50909;
-  cursor: pointer;
+@keyframes search-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
-.search-panel__close:hover {
-  background: #414141;
-}
+@media (prefers-reduced-motion: reduce) {
+  .search-panel {
+    animation: none;
+  }
 
-.search-panel__close svg {
-  width: 20px;
-  height: 20px;
-  fill: currentColor;
+  .search-panel__close {
+    transition: none;
+  }
 }

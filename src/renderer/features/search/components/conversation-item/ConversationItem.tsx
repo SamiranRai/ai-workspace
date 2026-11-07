@@ -14,6 +14,7 @@ registerStyles(css);
 interface ConversationItemProps {
   conversation: ConversationMatch;
   defaultExpanded?: boolean;
+  isProviderGroupStart?: boolean;
   onSelectMessage?: (
     conversation: ConversationMatch,
     message: MessageMatch,
@@ -23,6 +24,7 @@ interface ConversationItemProps {
 const ConversationItem = ({
   conversation,
   defaultExpanded = false,
+  isProviderGroupStart = false,
   onSelectMessage,
 }: ConversationItemProps) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
@@ -30,7 +32,12 @@ const ConversationItem = ({
   const { provider, title, updatedAt, messages } = conversation;
 
   return (
-    <li className="conversation-item">
+    <li
+      className={clsx(
+        "conversation-item",
+        isProviderGroupStart && "conversation-item--group-start",
+      )}
+    >
       <button
         className="conversation-item__header"
         type="button"

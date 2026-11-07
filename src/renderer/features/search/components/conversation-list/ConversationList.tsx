@@ -7,7 +7,6 @@ registerStyles(css);
 
 interface ConversationListProps {
   results: readonly ConversationMatch[];
-  expandFirst: boolean;
   onSelectMessage?: (
     conversation: ConversationMatch,
     message: MessageMatch,
@@ -16,7 +15,6 @@ interface ConversationListProps {
 
 const ConversationList = ({
   results,
-  expandFirst,
   onSelectMessage,
 }: ConversationListProps) => (
   <ul className="conversation-list">
@@ -24,7 +22,9 @@ const ConversationList = ({
       <ConversationItem
         key={conversation.id}
         conversation={conversation}
-        defaultExpanded={expandFirst && index === 0}
+        isProviderGroupStart={
+          index === 0 || results[index - 1]?.provider !== conversation.provider
+        }
         onSelectMessage={onSelectMessage}
       />
     ))}

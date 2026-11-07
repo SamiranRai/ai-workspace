@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { searchConversations } from "../search/search";
 import { getConversations } from "../storage/storage-client";
+import type { AIProvider } from "../types/conversation";
 import { SearchIcon } from "./shared/components/Icons";
 import { SearchPanel } from "./features/search";
 import type {
@@ -23,6 +24,19 @@ const toIsoString = (timestamp: number | null, fallback = 0): string =>
 const isSelectableRole = (
   role: string,
 ): role is MessageMatch["role"] => role === "user" || role === "assistant";
+
+const getOriginProvider = (): AIProvider => {
+  const hostname = window.location.hostname;
+  if (hostname === "claude.ai" || hostname.endsWith(".claude.ai")) return "claude";
+  if (hostname === "grok.com" || hostname.endsWith(".grok.com")) return "grok";
+  if (
+    hostname === "gemini.google.com" ||
+    hostname.endsWith(".gemini.google.com")
+  ) {
+    return "gemini";
+  }
+  return "chatgpt";
+};
 
 const search: (
   request: SearchRequest,
@@ -69,6 +83,8 @@ const search: (
 
 const App = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isFilterActive, setIsFilterActive] = useState(false);
+  const originProvider = getOriginProvider();
 
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
@@ -108,6 +124,10 @@ const App = () => {
           searchConversations={search}
           onClose={() => setIsSearchOpen(false)}
           onSelectMessage={handleSelectMessage}
+          initialPlatforms={[originProvider]}
+          originPlatform={originProvider}
+          isFilterActive={isFilterActive}
+          onFilterClick={() => setIsFilterActive((active) => !active)}
         />
       </div>
     );

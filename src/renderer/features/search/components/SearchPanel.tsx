@@ -28,6 +28,7 @@ export interface SearchPanelProps {
     message: MessageMatch,
   ) => void;
   initialPlatforms?: readonly AIProvider[];
+  originPlatform?: AIProvider;
   isFilterActive?: boolean;
   onFilterClick?: () => void;
   className?: string;
@@ -38,11 +39,16 @@ const SearchPanel = ({
   onClose,
   onSelectMessage,
   initialPlatforms = DEFAULT_PLATFORMS,
+  originPlatform = DEFAULT_PLATFORMS[0],
   isFilterActive,
   onFilterClick,
   className,
 }: SearchPanelProps) => {
-  const panel = useSearchPanel({ searchConversations, initialPlatforms });
+  const panel = useSearchPanel({
+    searchConversations,
+    initialPlatforms,
+    originPlatform,
+  });
 
   return (
     <div
@@ -54,12 +60,11 @@ const SearchPanel = ({
       <button
         className="search-panel__close"
         type="button"
-        aria-label="Close search"
+        aria-label="Close conversation search"
         onClick={onClose}
       >
-        <CloseIcon aria-hidden="true" />
+        <CloseIcon aria-hidden="true" size={22.785} />
       </button>
-
       <div
         className="search-panel__body"
         onClick={(event) => event.stopPropagation()}
@@ -74,6 +79,7 @@ const SearchPanel = ({
 
         <PlatformChips
           platforms={panel.platforms}
+          originPlatform={originPlatform}
           onRemove={panel.removePlatform}
         />
 
@@ -81,7 +87,6 @@ const SearchPanel = ({
           {panel.submittedSearch ? (
             <SearchResults
               state={panel.searchState}
-              isSinglePlatform={panel.platforms.length === 1}
               isFilterActive={isFilterActive}
               onFilterClick={onFilterClick}
               onRetry={panel.retry}

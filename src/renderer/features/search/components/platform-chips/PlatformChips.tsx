@@ -12,16 +12,19 @@ registerStyles(css);
 
 interface PlatformChipsProps {
   platforms: readonly AIProvider[];
+  originPlatform: AIProvider;
   onRemove: (platform: AIProvider) => void;
 }
 
 const REMOVE_BUTTON_SELECTOR = "button:not(:disabled)";
 
-const PlatformChips = ({ platforms, onRemove }: PlatformChipsProps) => {
+const PlatformChips = ({
+  platforms,
+  originPlatform,
+  onRemove,
+}: PlatformChipsProps) => {
   const listRef = useRef<HTMLUListElement>(null);
   const focusIndexAfterRemoval = useRef<number | null>(null);
-  const canRemove = platforms.length > 1;
-
   // A removed chip takes keyboard focus with it, so hand focus to its neighbour.
   useLayoutEffect(() => {
     const index = focusIndexAfterRemoval.current;
@@ -60,7 +63,7 @@ const PlatformChips = ({ platforms, onRemove }: PlatformChipsProps) => {
             <IconButton
               className="platform-chips__chip__remove"
               ariaLabel={`Remove ${label}`}
-              disabled={!canRemove}
+              disabled={platforms.length === 1 && platform === originPlatform}
               onClick={() => handleRemove(platform, index)}
             >
               <CloseIcon size={16} />
