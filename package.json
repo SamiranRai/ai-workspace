@@ -1,6 +1,6 @@
 {
   "name": "wxt-react-starter",
-  "description": "manifest.json description",
+  "description": "Search every AI chat from one workspace.",
   "private": true,
   "version": "0.0.0",
   "type": "module",

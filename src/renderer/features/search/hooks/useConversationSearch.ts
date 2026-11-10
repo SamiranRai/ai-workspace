@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
-import type { AIProvider } from "../../../../types/conversation";
+import type { AIProvider, MessageRole } from "../../../../types/conversation";
 import type { SearchConversations, SearchState } from "../types";
 
 const FALLBACK_ERROR_MESSAGE = "Something went wrong while searching.";
@@ -13,7 +13,16 @@ export const useConversationSearch = (
   const controllerRef = useRef<AbortController | null>(null);
 
   const search = useCallback(
-    async (query: string, platforms: readonly AIProvider[]) => {
+    async (
+      query: string,
+      platforms: readonly AIProvider[],
+      options: {
+        roles: readonly MessageRole[];
+        from: number | null;
+        to: number | null;
+        titlesOnly: boolean;
+      },
+    ) => {
       // Only the latest request may update state
       controllerRef.current?.abort();
       const controller = new AbortController();
@@ -27,6 +36,7 @@ export const useConversationSearch = (
         const results = await searchConversations({
           query,
           platforms,
+          ...options,
           signal: controller.signal,
         });
         if (controllerRef.current === controller && !controller.signal.aborted) {

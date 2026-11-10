@@ -19,6 +19,8 @@ interface ConversationItemProps {
     conversation: ConversationMatch,
     message: MessageMatch,
   ) => void;
+  selected?: boolean;
+  onToggleSelected?: () => void;
 }
 
 const ConversationItem = ({
@@ -26,6 +28,8 @@ const ConversationItem = ({
   defaultExpanded = false,
   isProviderGroupStart = false,
   onSelectMessage,
+  selected = false,
+  onToggleSelected,
 }: ConversationItemProps) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const messagesId = useId();
@@ -38,15 +42,41 @@ const ConversationItem = ({
         isProviderGroupStart && "conversation-item--group-start",
       )}
     >
-      <button
+      <div
         className="conversation-item__header"
-        type="button"
+        role="button"
+        tabIndex={0}
         aria-expanded={isExpanded}
         aria-controls={isExpanded ? messagesId : undefined}
         onClick={() => setIsExpanded((expanded) => !expanded)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            setIsExpanded((expanded) => !expanded);
+          }
+        }}
       >
+        {onToggleSelected && (
+          <input
+            className="conversation-item__checkbox"
+            type="checkbox"
+            checked={selected}
+            onChange={(event) => {
+              event.stopPropagation();
+              onToggleSelected();
+            }}
+            onClick={(event) => event.stopPropagation()}
+            aria-label={`Select ${title}`}
+          />
+        )}
         <ProviderIcon platform={provider} />
-        <span className="conversation-item__title">{title}</span>
+        <span className="conversation-item__title">
+          {conversation.titleSegments.map((segment, index) => (
+            segment.highlight
+              ? <mark key={`${segment.text}-${index}`}>{segment.text}</mark>
+              : <span key={`${segment.text}-${index}`}>{segment.text}</span>
+          ))}
+        </span>
         <span className="conversation-item__meta">
           <span>{pluralize(messages.length, "Message")}</span>
           <time dateTime={updatedAt}>{formatConversationDate(updatedAt)}</time>
@@ -58,7 +88,7 @@ const ConversationItem = ({
           )}
           aria-hidden="true"
         />
-      </button>
+      </div>
 
       {isExpanded && (
         <ul className="conversation-item__messages" id={messagesId}>

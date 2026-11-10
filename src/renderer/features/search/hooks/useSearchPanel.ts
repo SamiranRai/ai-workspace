@@ -2,7 +2,9 @@ import { useDeferredValue, useEffect, useState } from "react";
 
 import {
   AI_PROVIDERS,
+  MESSAGE_ROLES,
   type AIProvider,
+  type MessageRole,
 } from "../../../../types/conversation";
 import type { SearchConversations, SubmittedSearch } from "../types";
 import { useConversationSearch } from "./useConversationSearch";
@@ -28,6 +30,10 @@ export const useSearchPanel = ({
   });
   const [submittedSearch, setSubmittedSearch] =
     useState<SubmittedSearch | null>(null);
+  const [titlesOnly, setTitlesOnly] = useState(false);
+  const [roles, setRoles] = useState<readonly MessageRole[]>([]);
+  const [from, setFrom] = useState<number | null>(null);
+  const [to, setTo] = useState<number | null>(null);
   const deferredQuery = useDeferredValue(query);
 
   const { state, search, reset } = useConversationSearch(searchConversations);
@@ -57,11 +63,11 @@ export const useSearchPanel = ({
 
     const timeoutId = window.setTimeout(() => {
       setSubmittedSearch({ query: term });
-      void search(term, platforms);
+      void search(term, platforms, { roles, from, to, titlesOnly });
     }, 250);
 
     return () => window.clearTimeout(timeoutId);
-  }, [deferredQuery, platforms, search]);
+  }, [deferredQuery, from, platforms, roles, search, titlesOnly, to]);
 
   useEffect(() => {
     const term = query.trim();
@@ -90,7 +96,9 @@ export const useSearchPanel = ({
   };
 
   const retry = () => {
-    if (submittedSearch) void search(submittedSearch.query, platforms);
+    if (submittedSearch) {
+      void search(submittedSearch.query, platforms, { roles, from, to, titlesOnly });
+    }
   };
 
   return {
@@ -105,5 +113,14 @@ export const useSearchPanel = ({
     removePlatform,
     retry,
     clearRecentSearches: clearSearches,
+    titlesOnly,
+    setTitlesOnly,
+    roles,
+    setRoles,
+    from,
+    setFrom,
+    to,
+    setTo,
+    availableRoles: MESSAGE_ROLES,
   };
 };

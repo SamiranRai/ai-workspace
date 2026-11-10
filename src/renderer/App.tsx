@@ -1,9 +1,10 @@
 
 import { useCallback, useEffect, useState } from "react";
+import { browser } from "wxt/browser";
 
-import { searchConversations } from "../search/search";
+import { searchConversationsAsync } from "../search/search";
 import { getConversations } from "../storage/storage-client";
-import type { AIProvider } from "../types/conversation";
+import type { AIProvider, ConversationRecord } from "../types/conversation";
 import { SearchIcon } from "./shared/components/Icons";
 import { SearchPanel } from "./features/search";
 import type {
@@ -25,6 +26,36 @@ const isSelectableRole = (
   role: string,
 ): role is MessageMatch["role"] => role === "user" || role === "assistant";
 
+const SEARCH_RECORD_CACHE_MS = 10_000;
+let cachedSearchRecords: {
+  records: ConversationRecord[];
+  loadedAt: number;
+} | null = null;
+let searchRecordsRequest: Promise<ConversationRecord[]> | null = null;
+
+const getSearchRecords = async (): Promise<ConversationRecord[]> => {
+  const now = Date.now();
+  if (
+    cachedSearchRecords &&
+    now - cachedSearchRecords.loadedAt < SEARCH_RECORD_CACHE_MS
+  ) {
+    return cachedSearchRecords.records;
+  }
+
+  if (!searchRecordsRequest) {
+    searchRecordsRequest = getConversations()
+      .then((records) => {
+        cachedSearchRecords = { records, loadedAt: Date.now() };
+        return records;
+      })
+      .finally(() => {
+        searchRecordsRequest = null;
+      });
+  }
+
+  return searchRecordsRequest;
+};
+
 const getOriginProvider = (): AIProvider => {
   const hostname = window.location.hostname;
   if (hostname === "claude.ai" || hostname.endsWith(".claude.ai")) return "claude";
@@ -38,32 +69,36 @@ const getOriginProvider = (): AIProvider => {
   return "chatgpt";
 };
 
-const search: (
-  request: SearchRequest,
-) => Promise<readonly ConversationMatch[]> = async ({
+const search = async ({
   query,
   platforms,
+  roles,
+  from,
+  to,
+  titlesOnly,
   signal,
-}) => {
+}: SearchRequest): Promise<readonly ConversationMatch[]> => {
   if (signal.aborted) return [];
 
-  const records = await getConversations();
+  const records = await getSearchRecords();
   if (signal.aborted) return [];
 
-  const result = searchConversations(records, query, {
+  const result = await searchConversationsAsync(records, query, {
     providers: [...platforms],
-    roles: [],
-    from: null,
-    to: null,
-  });
+    roles: [...roles],
+    from,
+    to,
+  }, { titlesOnly }, signal);
 
-  return result.conversations.map(({ conversation, matches }) => ({
+  return result.conversations.map(({ conversation, matches, titleMatch, titleSegments }) => ({
     id: conversation.key,
     provider: conversation.platform,
     title: conversation.title,
     url: conversation.url,
     updatedAt: toIsoString(conversation.updatedAt, conversation.lastSyncedAt),
-    messages: matches.flatMap(({ message, snippet }) => {
+    titleMatch,
+    titleSegments,
+    messages: matches.flatMap(({ message, snippet, segments }) => {
       if (!isSelectableRole(message.role)) return [];
 
       return [
@@ -75,6 +110,7 @@ const search: (
             message.createdAt,
             conversation.updatedAt ?? conversation.lastSyncedAt,
           ),
+          segments,
         },
       ];
     }),
@@ -109,6 +145,22 @@ const App = () => {
     document.addEventListener("keydown", handleShortcut);
     return () => document.removeEventListener("keydown", handleShortcut);
   }, [isSearchOpen]);
+
+  useEffect(() => {
+    const handleOpenSearchMessage = (message: unknown) => {
+      if (
+        typeof message === "object" &&
+        message !== null &&
+        "type" in message &&
+        message.type === "OPEN_SEARCH"
+      ) {
+        setIsSearchOpen(true);
+      }
+    };
+
+    browser.runtime.onMessage.addListener(handleOpenSearchMessage);
+    return () => browser.runtime.onMessage.removeListener(handleOpenSearchMessage);
+  }, []);
 
   const handleSelectMessage = useCallback(
     (conversation: ConversationMatch, _message: MessageMatch) => {

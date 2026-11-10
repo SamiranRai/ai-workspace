@@ -1,3 +1,4 @@
+import { useState } from "react";
 import clsx from "clsx";
 
 import type { AIProvider } from "../../../../types/conversation";
@@ -44,6 +45,9 @@ const SearchPanel = ({
   onFilterClick,
   className,
 }: SearchPanelProps) => {
+  const [selectedIds, setSelectedIds] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
   const panel = useSearchPanel({
     searchConversations,
     initialPlatforms,
@@ -84,6 +88,66 @@ const SearchPanel = ({
         />
 
         <div className="search-panel__results">
+          {isFilterActive && (
+            <div className="search-panel__filters" aria-label="Search filters">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={panel.titlesOnly}
+                  onChange={(event) => panel.setTitlesOnly(event.target.checked)}
+                />
+                Titles only
+              </label>
+              <label>
+                Role
+                <select
+                  value={panel.roles[0] ?? ""}
+                  onChange={(event) =>
+                    panel.setRoles(
+                      event.target.value
+                        ? [event.target.value as (typeof panel.availableRoles)[number]]
+                        : [],
+                    )
+                  }
+                >
+                  <option value="">All roles</option>
+                  {panel.availableRoles.map((role) => (
+                    <option key={role} value={role}>
+                      {role}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                From
+                <input
+                  type="date"
+                  value={panel.from ? new Date(panel.from).toISOString().slice(0, 10) : ""}
+                  onChange={(event) =>
+                    panel.setFrom(
+                      event.target.value
+                        ? new Date(`${event.target.value}T00:00:00`).getTime()
+                        : null,
+                    )
+                  }
+                />
+              </label>
+              <label>
+                To
+                <input
+                  type="date"
+                  value={panel.to ? new Date(panel.to).toISOString().slice(0, 10) : ""}
+                  onChange={(event) =>
+                    panel.setTo(
+                      event.target.value
+                        ? new Date(`${event.target.value}T23:59:59.999`).getTime()
+                        : null,
+                    )
+                  }
+                />
+              </label>
+            </div>
+          )}
           {panel.submittedSearch ? (
             <SearchResults
               state={panel.searchState}
@@ -91,6 +155,15 @@ const SearchPanel = ({
               onFilterClick={onFilterClick}
               onRetry={panel.retry}
               onSelectMessage={onSelectMessage}
+              selectedIds={selectedIds}
+              onToggleSelected={(id) => {
+                setSelectedIds((current) => {
+                  const next = new Set(current);
+                  if (next.has(id)) next.delete(id);
+                  else next.add(id);
+                  return next;
+                });
+              }}
             />
           ) : (
             <RecentSearches

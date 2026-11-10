@@ -1,4 +1,5 @@
-import type { AIProvider } from "../../../types/conversation";
+import type { AIProvider, MessageRole as StoredMessageRole } from "../../../types/conversation";
+import type { TextSegment } from "../../../search/search";
 
 export type MessageRole = "user" | "assistant";
 
@@ -7,6 +8,7 @@ export interface MessageMatch {
   role: Exclude<MessageRole, "system" | "tool" | "other">;
   snippet: string;
   createdAt: string;
+  segments: readonly TextSegment[];
 }
 
 export interface ConversationMatch {
@@ -16,11 +18,17 @@ export interface ConversationMatch {
   url?: string;
   updatedAt: string;
   messages: readonly MessageMatch[];
+  titleMatch: boolean;
+  titleSegments: readonly TextSegment[];
 }
 
 export interface SearchRequest {
   query: string;
   platforms: readonly AIProvider[];
+  roles: readonly StoredMessageRole[];
+  from: number | null;
+  to: number | null;
+  titlesOnly: boolean;
   signal: AbortSignal;
 }
 

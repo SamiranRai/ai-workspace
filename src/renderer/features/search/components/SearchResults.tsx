@@ -11,6 +11,8 @@ interface SearchResultsProps {
     conversation: ConversationMatch,
     message: MessageMatch,
   ) => void;
+  selectedIds?: ReadonlySet<string>;
+  onToggleSelected?: (id: string) => void;
 }
 
 const SearchResults = ({
@@ -19,6 +21,8 @@ const SearchResults = ({
   onFilterClick,
   onRetry,
   onSelectMessage,
+  selectedIds,
+  onToggleSelected,
 }: SearchResultsProps) => {
   switch (state.status) {
     case "idle":
@@ -64,6 +68,8 @@ const SearchResults = ({
           <ConversationList
             results={state.results}
             onSelectMessage={onSelectMessage}
+            selectedIds={selectedIds}
+            onToggleSelected={onToggleSelected}
           />
         </>
       );

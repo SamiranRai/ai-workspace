@@ -11,11 +11,15 @@ interface ConversationListProps {
     conversation: ConversationMatch,
     message: MessageMatch,
   ) => void;
+  selectedIds?: ReadonlySet<string>;
+  onToggleSelected?: (id: string) => void;
 }
 
 const ConversationList = ({
   results,
   onSelectMessage,
+  selectedIds,
+  onToggleSelected,
 }: ConversationListProps) => (
   <ul className="conversation-list">
     {results.map((conversation, index) => (
@@ -26,6 +30,10 @@ const ConversationList = ({
           index === 0 || results[index - 1]?.provider !== conversation.provider
         }
         onSelectMessage={onSelectMessage}
+        selected={selectedIds?.has(conversation.id)}
+        onToggleSelected={
+          onToggleSelected ? () => onToggleSelected(conversation.id) : undefined
+        }
       />
     ))}
   </ul>

@@ -33,7 +33,13 @@ const MessageRow = ({ message, onSelect }: MessageRowProps) => {
         >
           {letter}
         </span>
-        <span className="message-row__snippet">{message.snippet}</span>
+        <span className="message-row__snippet">
+          {message.segments.map((segment, index) =>
+            segment.highlight
+              ? <mark key={`${segment.text}-${index}`}>{segment.text}</mark>
+              : <span key={`${segment.text}-${index}`}>{segment.text}</span>,
+          )}
+        </span>
         <time className="message-row__date" dateTime={message.createdAt}>
           {formatMessageDate(message.createdAt)}
         </time>

@@ -1,331 +1,166 @@
-import { useEffect, useMemo, useState } from "react";
-import { browser } from "wxt/browser";
-import { getConversations } from "../../src/storage/storage-client";
-import {
-  AI_PROVIDERS,
-  type AIProvider,
-  type ConversationRecord,
-} from "../../src/types/conversation";
-import {
-  DEFAULT_SEARCH_FILTERS,
-  searchConversations,
-  type SearchFilters,
-  type SearchResult,
-} from "../../src/search/search";
-import "./App.css";
+import { useEffect } from "react";
+import { browser, type PublicPath } from "wxt/browser";
 
-const providerLabels: Record<AIProvider, string> = {
-  chatgpt: "ChatGPT",
-  claude: "Claude",
-  gemini: "Gemini",
-  grok: "Grok",
+type ProviderContentScript = Extract<
+  PublicPath,
+  `/content-scripts/${string}.js`
+>;
+
+const getProviderContentScript = (
+  url: string | undefined,
+): ProviderContentScript => {
+  if (!url) throw new Error("The active tab URL is unavailable.");
+
+  const hostname = new URL(url).hostname;
+  if (hostname === "chatgpt.com" || hostname.endsWith(".chatgpt.com")) {
+    return "/content-scripts/chatgpt.js";
+  }
+  if (hostname === "claude.ai" || hostname.endsWith(".claude.ai")) {
+    return "/content-scripts/claude.js";
+  }
+  if (
+    hostname === "gemini.google.com" ||
+    hostname.endsWith(".gemini.google.com")
+  ) {
+    return "/content-scripts/gemini.js";
+  }
+  if (hostname === "grok.com" || hostname.endsWith(".grok.com")) {
+    return "/content-scripts/grok.js";
+  }
+
+  throw new Error("The active tab is not a supported AI site.");
 };
 
-const providerIcons: Record<AIProvider, string> = {
-  chatgpt: "◉",
-  claude: "✳",
-  gemini: "✦",
-  grok: "◌",
+const sendOpenSearch = async (tabId: number) => {
+  try {
+    await browser.tabs.sendMessage(tabId, { type: "OPEN_SEARCH" });
+  } catch (error) {
+    const existingLauncherOpened = await browser.scripting.executeScript({
+      target: { tabId },
+      func: () => {
+        const host = document.getElementById("aiworkspace-root");
+        const launcher =
+          host?.shadowRoot?.querySelector<HTMLButtonElement>(".app-launcher");
+        if (!launcher) return false;
+
+        launcher.click();
+        return true;
+      },
+    });
+
+    if (existingLauncherOpened[0]?.result) return;
+
+    const [activeTab] = await browser.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    const contentScript = getProviderContentScript(activeTab.url);
+
+    console.info("[smart-folder] injecting the provider content script", {
+      contentScript,
+      reason: error instanceof Error ? error.message : "No message receiver.",
+    });
+    await browser.scripting.executeScript({
+      target: { tabId },
+      files: [contentScript],
+    });
+    await browser.tabs.sendMessage(tabId, { type: "OPEN_SEARCH" });
+  }
 };
 
-function formatDate(timestamp: number | null): string {
-  return timestamp
-    ? new Intl.DateTimeFormat(undefined, {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-      }).format(timestamp)
-    : "Date unavailable";
-}
+const openSearchInActiveTab = async () => {
+  try {
+    const [activeTab] = await browser.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
 
-function App() {
-  const [records, setRecords] = useState<ConversationRecord[]>([]);
-  const [query, setQuery] = useState("");
-  const [providers, setProviders] = useState<AIProvider[]>([]);
-  const [isGlobal, setIsGlobal] = useState(false);
-  const [filters, setFilters] = useState<SearchFilters>(DEFAULT_SEARCH_FILTERS);
-  const [recent, setRecent] = useState<string[]>([]);
-  const [expanded, setExpanded] = useState<string | null>(null);
-  const [activeProvider, setActiveProvider] = useState<AIProvider>("chatgpt");
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    void Promise.all([
-      getConversations(),
-      browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-        const host = tabs[0]?.url ? new URL(tabs[0].url).hostname : "";
-        if (host.includes("claude")) setActiveProvider("claude");
-        else if (host.includes("gemini")) setActiveProvider("gemini");
-        else if (host.includes("grok")) setActiveProvider("grok");
-        else setActiveProvider("chatgpt");
-      }),
-    ])
-      .then(([conversations]) => setRecords(conversations))
-      .catch((reason: unknown) =>
-        setError(
-          reason instanceof Error
-            ? reason.message
-            : "Unable to load conversations.",
-        ),
-      );
-    try {
-      const saved = JSON.parse(
-        localStorage.getItem("smart-folder:recent") ?? "[]",
-      );
-      if (Array.isArray(saved))
-        setRecent(
-          saved.filter((item): item is string => typeof item === "string"),
-        );
-    } catch {
-      setRecent([]);
+    if (activeTab.id === undefined) {
+      throw new Error("No active tab is available.");
     }
+
+    await sendOpenSearch(activeTab.id);
+  } catch (error) {
+    console.error(
+      "[smart-folder] failed to open search in the active tab",
+      error,
+    );
+  } finally {
+    window.close();
+  }
+};
+
+const App = () => {
+  useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      if (event.key === "Escape") window.close();
+    };
+
+    window.addEventListener("keydown", handleShortcut);
+    return () => window.removeEventListener("keydown", handleShortcut);
   }, []);
 
-  const effectiveFilters = useMemo(
-    () => ({
-      ...filters,
-      providers: isGlobal ? providers : [activeProvider],
-    }),
-    [activeProvider, filters, isGlobal, providers],
-  );
-  const result: SearchResult = useMemo(
-    () => searchConversations(records, query, effectiveFilters),
-    [effectiveFilters, query, records],
-  );
-  const showRecent = query.trim().length === 0;
-
-  function saveSearch(value: string) {
-    const trimmed = value.trim();
-    if (!trimmed) return;
-    const next = [
-      trimmed,
-      ...recent.filter(
-        (item) => item.toLocaleLowerCase() !== trimmed.toLocaleLowerCase(),
-      ),
-    ].slice(0, 8);
-    setRecent(next);
-    localStorage.setItem("smart-folder:recent", JSON.stringify(next));
-  }
-
-  function toggleProvider(provider: AIProvider) {
-    setProviders((current) =>
-      current.includes(provider)
-        ? current.filter((item) => item !== provider)
-        : [...current, provider],
-    );
-  }
-
-  function openConversation(record: ConversationRecord, messageId?: string) {
-    if (!record.url) return;
-    void browser.tabs.create({
-      url: record.url + (messageId ? `#message-${messageId}` : ""),
-    });
-  }
-
   return (
-    <main className="search-panel">
-      <header className="search-header">
-        <div className="search-box">
-          <span className="search-icon">⌕</span>
-          <input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            onKeyDown={(event) => event.key === "Enter" && saveSearch(query)}
-            placeholder={
-              isGlobal
-                ? "Search your AI conversations..."
-                : `Search your ${providerLabels[activeProvider]} conversations...`
-            }
-            aria-label="Search conversations"
-            autoFocus
+    <main className="popup" aria-label="AI workspace">
+      <section className="intro">
+        <div className="brand">
+          <img
+            className="brand__icon"
+            src="/icon/mark-a-cube.svg"
+            alt=""
+            width="40"
+            height="40"
           />
-          <select
-            className="provider-select"
-            value={isGlobal ? "global" : activeProvider}
-            onChange={(event) => {
-              if (event.target.value === "global") {
-                setIsGlobal(true);
-                setProviders([]);
-              } else {
-                setIsGlobal(false);
-                setActiveProvider(event.target.value as AIProvider);
-              }
-            }}
-            aria-label="Search platform"
-          >
-            {AI_PROVIDERS.map((provider) => (
-              <option value={provider} key={provider}>
-                {providerIcons[provider]} {providerLabels[provider]}
-              </option>
-            ))}
-            <option value="global">All platforms</option>
-          </select>
+          <span className="brand__name">Ai workspace</span>
         </div>
-        <div className="provider-chips">
-          {(isGlobal ? AI_PROVIDERS : [activeProvider]).map((provider) => (
-            <button
-              className={`chip ${isGlobal && providers.includes(provider) ? "selected" : ""}`}
-              key={provider}
-              onClick={() =>
-                isGlobal ? toggleProvider(provider) : setIsGlobal(true)
-              }
-            >
-              {providerIcons[provider]} {providerLabels[provider]}{" "}
-              <span>×</span>
-            </button>
-          ))}
-        </div>
-      </header>
+        <p className="intro__description">
+          A workspace that lives inside the AI sites you already use.
+        </p>
+      </section>
 
-      {error && <p className="error">{error}</p>}
-      {showRecent ? (
-        <section className="recent">
-          <div className="section-title">
-            <span>Recent Searches</span>
-            {recent.length > 0 && (
-              <button
-                onClick={() => {
-                  setRecent([]);
-                  localStorage.removeItem("smart-folder:recent");
-                }}
-              >
-                × Clear All
-              </button>
-            )}
+      <section className="features" aria-label="Workspace features">
+        <article className="feature-card feature-card--search">
+          <p className="feature-card__eyebrow">Available now · Global Search</p>
+          <button
+            className="open-search"
+            type="button"
+            onClick={() => void openSearchInActiveTab()}
+          >
+            <img src="/icon/search.svg" alt="" width="17" height="17" />
+            <span>Open Search</span>
+          </button>
+          <div className="shortcuts">
+            <p className="shortcuts__label">Shortcuts:</p>
+            <div className="shortcut-row">
+              <span>Open Search</span>
+              <kbd>command + x</kbd>
+            </div>
+            <div className="shortcut-row">
+              <span>Close Search</span>
+              <kbd>Esc</kbd>
+            </div>
           </div>
-          <div className="recent-list">
-            {recent.map((item) => (
-              <button key={item} onClick={() => setQuery(item)}>
-                {item}
-              </button>
-            ))}
-            {recent.length === 0 && (
-              <span className="muted">Your searches will appear here.</span>
-            )}
+        </article>
+
+        <article className="feature-card feature-card--folders">
+          <p className="feature-card__eyebrow">Coming Next</p>
+          <div className="folders-copy">
+            <p className="folders-copy__title">Folders</p>
+            <p>Organize chats from every AI into one workspace.</p>
           </div>
-        </section>
-      ) : (
-        <section className="results">
-          <div className="result-toolbar">
-            <span>
-              {result.totalMessages} messages in {result.totalConversations}{" "}
-              conversations
-            </span>
-            <button
-              onClick={() =>
-                setFilters((current) => ({
-                  ...current,
-                  roles: current.roles.length ? [] : ["user", "assistant"],
-                }))
-              }
-            >
-              {filters.roles.length ? "× Filter" : "Filter"}
-            </button>
-          </div>
-          {!isGlobal
-            ? result.conversations.map((item) => (
-                <ConversationResult
-                  key={item.conversation.key}
-                  result={item}
-                  expanded={expanded === item.conversation.key}
-                  onExpand={() =>
-                    setExpanded(
-                      expanded === item.conversation.key
-                        ? null
-                        : item.conversation.key,
-                    )
-                  }
-                  onOpen={openConversation}
-                />
-              ))
-            : result.groups.map((group) => (
-                <div className="provider-group" key={group.provider}>
-                  <h2>
-                    {providerIcons[group.provider]}{" "}
-                    {providerLabels[group.provider]}{" "}
-                    <small>
-                      {group.matchingMessages} messages · {group.results.length}{" "}
-                      conversations
-                    </small>
-                  </h2>
-                  {group.results.map((item) => (
-                    <ConversationResult
-                      key={item.conversation.key}
-                      result={item}
-                      expanded={expanded === item.conversation.key}
-                      onExpand={() =>
-                        setExpanded(
-                          expanded === item.conversation.key
-                            ? null
-                            : item.conversation.key,
-                        )
-                      }
-                      onOpen={openConversation}
-                    />
-                  ))}
-                </div>
-              ))}
-          {result.totalConversations === 0 && (
-            <p className="empty">No matching conversations found.</p>
-          )}
-        </section>
-      )}
+        </article>
+      </section>
+
+      <footer className="footer">
+        <p>
+          Beta: still improving. Hit a problem? Tell us and we’ll fix it fast.
+        </p>
+        <button className="report-bug" type="button">
+          Report Bug
+        </button>
+      </footer>
     </main>
   );
-}
-
-function ConversationResult({
-  result,
-  expanded,
-  onExpand,
-  onOpen,
-}: {
-  result: SearchResult["conversations"][number];
-  expanded: boolean;
-  onExpand: () => void;
-  onOpen: (record: ConversationRecord, messageId?: string) => void;
-}) {
-  const { conversation, matches } = result;
-  return (
-    <article className="conversation">
-      <button className="conversation-heading" onClick={onExpand}>
-        <span className="conversation-title">
-          {providerIcons[conversation.platform]}{" "}
-          {conversation.title || "Untitled conversation"}
-        </span>
-        <span className="conversation-meta">
-          {matches.length} Messages
-          <br />
-          {formatDate(conversation.updatedAt)} <b>{expanded ? "⌃" : "⌄"}</b>
-        </span>
-      </button>
-      {expanded && (
-        <div className="message-list">
-          {matches.map(({ message, snippet }) => (
-            <button
-              className={`message ${message.role}`}
-              key={message.id}
-              onClick={() => onOpen(conversation, message.id)}
-            >
-              <span className="role">
-                {message.role === "user" ? "Q" : "A"}
-              </span>
-              <span>{snippet}</span>
-              <time>{formatDate(message.createdAt)}</time>
-            </button>
-          ))}
-          {matches.length === 0 && (
-            <button className="message" onClick={() => onOpen(conversation)}>
-              <span className="role">↗</span>
-              <span>Open conversation</span>
-            </button>
-          )}
-        </div>
-      )}
-    </article>
-  );
-}
+};
 
 export default App;
