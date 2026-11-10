@@ -5,7 +5,6 @@ import { browser } from "wxt/browser";
 import { searchConversationsAsync } from "../search/search";
 import { getConversations } from "../storage/storage-client";
 import type { AIProvider, ConversationRecord } from "../types/conversation";
-import { SearchIcon } from "./shared/components/Icons";
 import { SearchPanel } from "./features/search";
 import type {
   ConversationMatch,
@@ -185,17 +184,7 @@ const App = () => {
     );
   }
 
-  return (
-    <button
-      className="app-launcher"
-      type="button"
-      onClick={() => setIsSearchOpen(true)}
-      aria-label="Open conversation search (Command X)"
-    >
-      <SearchIcon aria-hidden="true" />
-      Search conversations
-    </button>
-  );
+  return null;
 };
 
 export default App;

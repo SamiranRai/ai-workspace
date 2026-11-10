@@ -35,6 +35,7 @@ const sendOpenSearch = async (tabId: number) => {
   try {
     await browser.tabs.sendMessage(tabId, { type: "OPEN_SEARCH" });
   } catch (error) {
+    // Replace a stale page instance left behind by an extension reload.
     await browser.scripting.executeScript({
       target: { tabId },
       func: () => {

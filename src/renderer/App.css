@@ -9,21 +9,3 @@
   backdrop-filter: blur(7px);
   pointer-events: auto;
 }
-
-.app-launcher {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  border: 1px solid #3c3c3c;
-  border-radius: 10px;
-  background: #1e1e1e;
-  color: #bcbab6;
-  cursor: pointer;
-  font: 500 14px/1.38 var(--font-family-sans);
-  pointer-events: auto;
-}
-
-.app-launcher:hover {
-  background: #2d2d2d;
-}
