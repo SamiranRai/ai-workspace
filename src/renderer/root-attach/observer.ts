@@ -1,20 +1,29 @@
-import { ensureApp } from "./MountEl";
-
-let watchdogStarted = false;
+import { browser } from "wxt/browser";
+import { openSearch, resetApp } from "./MountEl";
 
 const mountApp = async (): Promise<void> => {
-  console.log("[ai-workspace] mountApp()");
+  resetApp();
 
-  // Call
-  ensureApp();
+  const handleOpenSearch = (message: unknown) => {
+    if (
+      typeof message === "object" &&
+      message !== null &&
+      "type" in message &&
+      message.type === "OPEN_SEARCH"
+    ) {
+      openSearch();
+    }
+  };
 
-  if (watchdogStarted) return;
-  watchdogStarted = true;
+  const handleShortcut = (event: KeyboardEvent) => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "x") {
+      event.preventDefault();
+      openSearch();
+    }
+  };
 
-  new MutationObserver(ensureApp).observe(document.body, {
-    childList: true,
-    subtree: true,
-  });
+  browser.runtime.onMessage.addListener(handleOpenSearch);
+  document.addEventListener("keydown", handleShortcut);
 };
 
 export default mountApp;

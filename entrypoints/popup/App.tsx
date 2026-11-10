@@ -39,6 +39,10 @@ const sendOpenSearch = async (tabId: number) => {
     await browser.scripting.executeScript({
       target: { tabId },
       func: () => {
+        document.documentElement.setAttribute(
+          "data-ai-workspace-owner",
+          `reload-${Date.now()}-${Math.random()}`,
+        );
         document.getElementById("aiworkspace-root")?.remove();
       },
     });

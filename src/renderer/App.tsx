@@ -1,6 +1,5 @@
 
 import { useCallback, useEffect, useState } from "react";
-import { browser } from "wxt/browser";
 
 import { searchConversationsAsync } from "../search/search";
 import { getConversations } from "../storage/storage-client";
@@ -116,8 +115,12 @@ const search = async ({
   }));
 };
 
-const App = () => {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+interface AppProps {
+  initialOpen?: boolean;
+}
+
+const App = ({ initialOpen = false }: AppProps) => {
+  const [isSearchOpen, setIsSearchOpen] = useState(initialOpen);
   const [isFilterActive, setIsFilterActive] = useState(false);
   const originProvider = getOriginProvider();
 
@@ -146,19 +149,13 @@ const App = () => {
   }, [isSearchOpen]);
 
   useEffect(() => {
-    const handleOpenSearchMessage = (message: unknown) => {
-      if (
-        typeof message === "object" &&
-        message !== null &&
-        "type" in message &&
-        message.type === "OPEN_SEARCH"
-      ) {
-        setIsSearchOpen(true);
-      }
-    };
+    const host = document.getElementById("aiworkspace-root");
+    if (!host) return;
 
-    browser.runtime.onMessage.addListener(handleOpenSearchMessage);
-    return () => browser.runtime.onMessage.removeListener(handleOpenSearchMessage);
+    const handleOpenSearch = () => setIsSearchOpen(true);
+    host.addEventListener("ai-workspace:open-search", handleOpenSearch);
+    return () =>
+      host.removeEventListener("ai-workspace:open-search", handleOpenSearch);
   }, []);
 
   const handleSelectMessage = useCallback(

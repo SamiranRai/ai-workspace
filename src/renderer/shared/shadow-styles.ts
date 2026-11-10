@@ -2,7 +2,6 @@
 
 const registered = new Set<string>();
 const chunks: string[] = [];
-let sheet: CSSStyleSheet | null = null;
 let root: ShadowRoot | null = null;
 
 export function registerStyles(
@@ -25,15 +24,6 @@ export function attachStyles(shadow: ShadowRoot) {
 
 function flush() {
   if (!root) return;
-
-  if ("adoptedStyleSheets" in Document.prototype) {
-    if (!sheet) {
-      sheet = new CSSStyleSheet();
-      root.adoptedStyleSheets = [sheet];
-    }
-    sheet.replaceSync(chunks.join("\n"));
-    return;
-  }
 
   let tag = root.querySelector("style[data-sf]") as HTMLStyleElement | null;
   if (!tag) {
