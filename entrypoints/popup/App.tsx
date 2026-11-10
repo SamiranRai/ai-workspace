@@ -35,20 +35,12 @@ const sendOpenSearch = async (tabId: number) => {
   try {
     await browser.tabs.sendMessage(tabId, { type: "OPEN_SEARCH" });
   } catch (error) {
-    const existingLauncherOpened = await browser.scripting.executeScript({
+    await browser.scripting.executeScript({
       target: { tabId },
       func: () => {
-        const host = document.getElementById("aiworkspace-root");
-        const launcher =
-          host?.shadowRoot?.querySelector<HTMLButtonElement>(".app-launcher");
-        if (!launcher) return false;
-
-        launcher.click();
-        return true;
+        document.getElementById("aiworkspace-root")?.remove();
       },
     });
-
-    if (existingLauncherOpened[0]?.result) return;
 
     const [activeTab] = await browser.tabs.query({
       active: true,
@@ -64,7 +56,16 @@ const sendOpenSearch = async (tabId: number) => {
       target: { tabId },
       files: [contentScript],
     });
-    await browser.tabs.sendMessage(tabId, { type: "OPEN_SEARCH" });
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        await browser.tabs.sendMessage(tabId, { type: "OPEN_SEARCH" });
+        return;
+      } catch (retryError) {
+        if (attempt === 2) throw retryError;
+        await new Promise((resolve) => setTimeout(resolve, 50));
+      }
+    }
   }
 };
 
