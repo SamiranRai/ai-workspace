@@ -5,6 +5,7 @@ import {
   isRequestSyncNowMessage,
   type SyncNowMessage,
 } from "../shared/contracts/sync-messages";
+import { logger } from "../shared/logging/logger";
 
 const PROVIDER_URL_PATTERNS = [
   "https://chatgpt.com/*",
@@ -28,7 +29,7 @@ let lastSeriesAt = 0;
 export function registerSyncCoordinator(): void {
   if (browser.alarms) {
     ensureHeartbeat().catch((error: unknown) => {
-      console.error("[smart-folder] could not create the heartbeat alarm", error);
+      logger.error("[smart-folder] could not create the heartbeat alarm", error);
     });
 
     browser.alarms.onAlarm.addListener((alarm) => {
@@ -77,6 +78,6 @@ async function pokeProviderTabs(): Promise<void> {
       ),
     );
   } catch (error) {
-    console.error("[smart-folder] could not wake provider tabs", error);
+    logger.error("[smart-folder] could not wake provider tabs", error);
   }
 }

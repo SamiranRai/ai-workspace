@@ -4,6 +4,7 @@ import type { AIProvider } from "../shared/models/conversation";
 import type { ProviderSource } from "../providers/provider-source";
 import { syncProvider, type SyncSummary } from "./sync-engine";
 import { isSyncNowMessage } from "../shared/contracts/sync-messages";
+import { logger } from "../shared/logging/logger";
 
 const DEBOUNCE_MS = 1_500;
 const RETRY_DELAYS_MS = [2_000, 6_000, 20_000];
@@ -153,7 +154,7 @@ export function startProviderWatcher(
     }
     if (loggedErrors.has(message)) return;
     loggedErrors.add(message);
-    console.error(`[smart-folder] ${platform} sync failed`, error);
+    logger.error(`[smart-folder] ${platform} sync failed`, error);
   }
 
   function stop(): void {
@@ -183,7 +184,7 @@ export function startProviderWatcher(
   const rescanTimer = window.setInterval(requestRescan, RESCAN_INTERVAL_MS);
 
   active.set(platform, stop);
-  console.debug(`[smart-folder] ${platform} watcher started`);
+  logger.debug(`[smart-folder] ${platform} watcher started`);
   schedule();
   loopProbe();
   return stop;
@@ -193,11 +194,11 @@ function report(platform: string, summary: SyncSummary): void {
   const line = `[smart-folder] ${platform} sync: scanned ${summary.scanned}, saved ${summary.saved}, pending ${summary.pending}, failures ${summary.failures.length}`;
 
   if (summary.saved > 0 || summary.failures.length > 0) {
-    console.info(line);
+    logger.info(line);
   } else {
-    console.debug(line);
+    logger.debug(line);
   }
   if (summary.failures.length > 0) {
-    console.warn(`[smart-folder] ${platform} sync failures`, summary.failures);
+    logger.warn(`[smart-folder] ${platform} sync failures`, summary.failures);
   }
 }

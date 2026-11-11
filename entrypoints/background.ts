@@ -19,6 +19,7 @@ import {
 } from "../src/shared/contracts/storage-messages";
 
 import { registerSyncCoordinator } from "../src/sync/sync-coordinator";
+import { logger } from "../src/shared/logging/logger";
 
 // AI provider origins allowed to access shared conversation storage.
 const ALLOWED_PAGE_ORIGINS: ReadonlySet<string> = new Set([
@@ -46,7 +47,7 @@ export default defineBackground(() => {
     void handleStorageMessage(message, sender.url)
       .then(sendResponse)
       .catch((error: unknown) => {
-        console.error("[storage] Unexpected message handler failure", error);
+        logger.error("[storage] Unexpected message handler failure", error);
 
         sendResponse(
           failure(
@@ -62,7 +63,7 @@ export default defineBackground(() => {
   try {
     registerSyncCoordinator();
   } catch (error) {
-    console.error("[smart-folder] sync coordinator failed to start", error);
+    logger.error("[smart-folder] sync coordinator failed to start", error);
   }
 });
 
@@ -145,7 +146,7 @@ async function handleStorageMessage(
         return failure("Unsupported storage message.");
     }
   } catch (error) {
-    console.error("[storage] Request failed", {
+    logger.error("[storage] Request failed", {
       type,
       error,
     });

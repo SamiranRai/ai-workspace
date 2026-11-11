@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { browser, type PublicPath } from "wxt/browser";
+import { logger } from "../../src/shared/logging/logger";
 
 type ProviderContentScript = Extract<
   PublicPath,
@@ -53,7 +54,7 @@ const sendOpenSearch = async (tabId: number) => {
     });
     const contentScript = getProviderContentScript(activeTab.url);
 
-    console.info("[smart-folder] injecting the provider content script", {
+    logger.info("[smart-folder] injecting the provider content script", {
       contentScript,
       reason: error instanceof Error ? error.message : "No message receiver.",
     });
@@ -87,7 +88,7 @@ const openSearchInActiveTab = async () => {
 
     await sendOpenSearch(activeTab.id);
   } catch (error) {
-    console.error(
+    logger.error(
       "[smart-folder] failed to open search in the active tab",
       error,
     );
