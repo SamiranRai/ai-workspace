@@ -1,7 +1,7 @@
 import { browser } from "wxt/browser";
 
-import type { ConversationRecord } from "../types/conversation";
-import type { SyncCheckpoint } from "../types/sync";
+import type { ConversationRecord } from "../shared/models/conversation";
+import type { SyncCheckpoint } from "../shared/models/sync";
 import {
   GET_CONVERSATIONS_MESSAGE,
   GET_SYNC_CHECKPOINT_MESSAGE,

@@ -4,8 +4,8 @@ import {
   type AIProvider,
   type ConversationRecord,
   type StoredMessage,
-} from "../types/conversation";
-import type { SyncCheckpoint } from "../types/sync";
+} from "../shared/models/conversation";
+import type { SyncCheckpoint } from "../shared/models/sync";
 
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);

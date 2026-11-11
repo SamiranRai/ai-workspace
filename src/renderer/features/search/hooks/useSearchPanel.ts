@@ -5,7 +5,7 @@ import {
   MESSAGE_ROLES,
   type AIProvider,
   type MessageRole,
-} from "../../../../types/conversation";
+} from "../../../../shared/models/conversation";
 import type { SearchConversations, SubmittedSearch } from "../types";
 import { useConversationSearch } from "./useConversationSearch";
 import { useRecentSearches } from "./useRecentSearches";

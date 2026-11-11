@@ -1,6 +1,6 @@
 import { browser } from "wxt/browser";
 
-import type { AIProvider } from "../types/conversation";
+import type { AIProvider } from "../shared/models/conversation";
 import type { ProviderSource } from "../providers/provider-source";
 import { syncProvider, type SyncSummary } from "./sync-engine";
 import { isSyncNowMessage } from "./sync-messages";

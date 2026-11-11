@@ -1,4 +1,4 @@
-import type { AIProvider } from "../../../../../types/conversation";
+import type { AIProvider } from "../../../../../shared/models/conversation";
 
 export const PROVIDER_LABELS: Record<AIProvider, string> = {
   chatgpt: "ChatGPT",

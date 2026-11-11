@@ -1,4 +1,4 @@
-import type { AIProvider } from "../../../../../types/conversation";
+import type { AIProvider } from "../../../../../shared/models/conversation";
 import {
   ChatgptIcon,
   ClaudeIcon,

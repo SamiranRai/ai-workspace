@@ -2,8 +2,8 @@ import {
   getSyncCheckpoint,
   upsertConversations,
 } from "../storage/storage-client";
-import type { ConversationRecord } from "../types/conversation";
-import type { SyncCheckpoint } from "../types/sync";
+import type { ConversationRecord } from "../shared/models/conversation";
+import type { SyncCheckpoint } from "../shared/models/sync";
 import type { ProviderSource, SourceEntry } from "../providers/provider-source";
 
 const BATCH_SIZE = 50;

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import clsx from "clsx";
 
-import type { AIProvider } from "../../../../types/conversation";
+import type { AIProvider } from "../../../../shared/models/conversation";
 import { CloseIcon } from "../../../shared/components/Icons";
 import { registerStyles } from "../../../shared/shadow-styles";
 import SearchBox from "./search-box/SearchBox";

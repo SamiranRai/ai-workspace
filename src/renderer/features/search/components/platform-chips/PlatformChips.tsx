@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef } from "react";
 
-import type { AIProvider } from "../../../../../types/conversation";
+import type { AIProvider } from "../../../../../shared/models/conversation";
 import IconButton from "../../../../shared/components/IconButton";
 import { CloseIcon } from "../../../../shared/components/Icons";
 import ProviderIcon from "../search-box/ProviderIcon";

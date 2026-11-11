@@ -1,4 +1,4 @@
-import type { AIProvider, MessageRole as StoredMessageRole } from "../../../types/conversation";
+import type { AIProvider, MessageRole as StoredMessageRole } from "../../../shared/models/conversation";
 import type { TextSegment } from "../../../search/search";
 
 export type MessageRole = "user" | "assistant";

@@ -3,7 +3,7 @@ import type {
   ConversationRecord,
   MessageRole,
   StoredMessage,
-} from "../../types/conversation";
+} from "../../shared/models/conversation";
 
 type DataRecord = Record<string, unknown>;
 

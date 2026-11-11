@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
-import type { AIProvider, MessageRole } from "../../../../types/conversation";
+import type { AIProvider, MessageRole } from "../../../../shared/models/conversation";
 import type { SearchConversations, SearchState } from "../types";
 
 const FALLBACK_ERROR_MESSAGE = "Something went wrong while searching.";

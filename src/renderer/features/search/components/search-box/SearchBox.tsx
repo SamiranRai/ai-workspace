@@ -4,7 +4,7 @@ import type { ChangeEvent, KeyboardEvent, RefObject } from "react";
 import {
   AI_PROVIDERS,
   type AIProvider,
-} from "../../../../../types/conversation";
+} from "../../../../../shared/models/conversation";
 import {
   SearchIcon,
   DropdownIcon,

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { searchConversationsAsync } from "../search/search";
 import { getConversations } from "../storage/storage-client";
-import type { AIProvider, ConversationRecord } from "../types/conversation";
+import type { AIProvider, ConversationRecord } from "../shared/models/conversation";
 import { SearchPanel } from "./features/search";
 import type {
   ConversationMatch,

@@ -1,4 +1,4 @@
-import type { AIProvider, ConversationRecord } from "../types/conversation";
+import type { AIProvider, ConversationRecord } from "../shared/models/conversation";
 
 export interface SourceEntry {
   id: string;

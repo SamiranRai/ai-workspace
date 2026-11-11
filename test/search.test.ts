@@ -5,7 +5,7 @@ import {
   highlightText,
   searchConversations,
 } from "../src/search/search";
-import type { ConversationRecord } from "../src/types/conversation";
+import type { ConversationRecord } from "../src/shared/models/conversation";
 
 const record = (
   overrides: Partial<ConversationRecord> = {},
