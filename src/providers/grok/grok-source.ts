@@ -1,4 +1,4 @@
-import type { ProviderSource, SourceEntry } from "../../sync/provider-source";
+import type { ProviderSource, SourceEntry } from "../provider-source";
 import { normalizeGrokConversation } from "./conversation-normalizer";
 import {
   GrokSourceReader,

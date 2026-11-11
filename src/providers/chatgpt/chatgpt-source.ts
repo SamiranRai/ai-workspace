@@ -1,7 +1,4 @@
-import type {
-  ProviderSource,
-  SourceEntry,
-} from "../../sync/provider-source";
+import type { ProviderSource, SourceEntry } from "../provider-source";
 import {
   normalizeChatGPTConversation,
   toTimestamp,
@@ -61,7 +58,10 @@ export function createChatGPTSource(): ProviderSource {
 
 /** Only recently updated chats can be mid-write; old chats are never "incomplete". */
 function isIncomplete(raw: unknown, meta: unknown, now: number): boolean {
-  const info = meta as { update_time?: unknown; message_count?: unknown } | null;
+  const info = meta as {
+    update_time?: unknown;
+    message_count?: unknown;
+  } | null;
   const updatedAt = toTimestamp(info?.update_time);
 
   if (updatedAt === null || now - updatedAt > IN_FLIGHT_MS) return false;
