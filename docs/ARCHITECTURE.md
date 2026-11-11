@@ -21,6 +21,7 @@ conversation titles and messages across ChatGPT, Claude, Gemini, and Grok.
 | `src/renderer/` | In-page React application, shadow-DOM mounting, search feature UI/hooks, shared components, icons, and design-system styles. The application shell is under `src/renderer/app/`. |
 | `src/shared/models/` | Shared conversation/message and sync-checkpoint data types. |
 | `src/shared/contracts/` | Runtime storage and synchronization message names, payloads, and response types. |
+| `src/shared/logging/` | The single logger and development-only debug switch. |
 | `test/` | Vitest setup for fake IndexedDB and Web Locks, plus storage and locking smoke tests. |
 | `docs/` | Architecture and implementation reports. |
 | `public/` | Static extension assets and icons. |
@@ -215,7 +216,8 @@ entries are oldest-first pages, and loaded IDs must preserve request order.
   message names, sync message names, DOM event names, host IDs, and storage keys)
   across independent contexts. They are currently stable but are easy to drift.
 - Error handling/logging is spread between `console.error`, `console.warn`,
-  `console.info`, and `console.debug`; there is no single debug-mode switch.
+  `console.info`, and `console.debug`; the shared logger now centralizes these
+  calls and suppresses debug output in production builds.
 - Provider data and extension data are intentionally coupled to undocumented
   provider IndexedDB schemas. Schema validation protects reads, but provider
   upgrades can stop synchronization.
