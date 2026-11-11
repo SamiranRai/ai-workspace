@@ -10,7 +10,6 @@ const createHost = (): HTMLElement => {
   host.style.pointerEvents = "none";
   host.style.zIndex = "999999";
 
-  //
   document.body.appendChild(host);
 
   return host;
