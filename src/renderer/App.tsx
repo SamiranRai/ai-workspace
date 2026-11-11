@@ -1,9 +1,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { searchConversationsAsync } from "../search/search";
-import { getConversations } from "../storage/storage-client";
-import type { AIProvider, ConversationRecord } from "../shared/models/conversation";
+import { searchStoredConversations } from "../search/search-service";
+import type { AIProvider } from "../shared/models/conversation";
 import { SearchPanel } from "./features/search";
 import type {
   ConversationMatch,
@@ -23,36 +22,6 @@ const toIsoString = (timestamp: number | null, fallback = 0): string =>
 const isSelectableRole = (
   role: string,
 ): role is MessageMatch["role"] => role === "user" || role === "assistant";
-
-const SEARCH_RECORD_CACHE_MS = 10_000;
-let cachedSearchRecords: {
-  records: ConversationRecord[];
-  loadedAt: number;
-} | null = null;
-let searchRecordsRequest: Promise<ConversationRecord[]> | null = null;
-
-const getSearchRecords = async (): Promise<ConversationRecord[]> => {
-  const now = Date.now();
-  if (
-    cachedSearchRecords &&
-    now - cachedSearchRecords.loadedAt < SEARCH_RECORD_CACHE_MS
-  ) {
-    return cachedSearchRecords.records;
-  }
-
-  if (!searchRecordsRequest) {
-    searchRecordsRequest = getConversations()
-      .then((records) => {
-        cachedSearchRecords = { records, loadedAt: Date.now() };
-        return records;
-      })
-      .finally(() => {
-        searchRecordsRequest = null;
-      });
-  }
-
-  return searchRecordsRequest;
-};
 
 const getOriginProvider = (): AIProvider => {
   const hostname = window.location.hostname;
@@ -76,17 +45,15 @@ const search = async ({
   titlesOnly,
   signal,
 }: SearchRequest): Promise<readonly ConversationMatch[]> => {
-  if (signal.aborted) return [];
-
-  const records = await getSearchRecords();
-  if (signal.aborted) return [];
-
-  const result = await searchConversationsAsync(records, query, {
-    providers: [...platforms],
-    roles: [...roles],
+  const result = await searchStoredConversations({
+    query,
+    providers: platforms,
+    roles,
     from,
     to,
-  }, { titlesOnly }, signal);
+    titlesOnly,
+    signal,
+  });
 
   return result.conversations.map(({ conversation, matches, titleMatch, titleSegments }) => ({
     id: conversation.key,
