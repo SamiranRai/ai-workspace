@@ -1,4 +1,4 @@
-import type { AIProvider } from "../shared/models/conversation";
+import type { AIProvider } from "../models/conversation";
 
 export const SYNC_NOW_MESSAGE = "smart-folder:sync-now";
 export const REQUEST_SYNC_NOW_MESSAGE = "smart-folder:request-sync-now";

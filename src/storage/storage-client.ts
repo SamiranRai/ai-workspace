@@ -12,7 +12,7 @@ import {
   type StorageResponse,
   type UpsertConversationsResponse,
   type UpsertConversationsResult,
-} from "./storage-messages";
+} from "../shared/contracts/storage-messages";
 
 async function send<T extends StorageResponse>(
   request: StorageRequest,

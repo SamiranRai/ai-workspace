@@ -1,5 +1,5 @@
-import type { ConversationRecord } from "../shared/models/conversation";
-import type { SyncCheckpoint } from "../shared/models/sync";
+import type { ConversationRecord } from "../models/conversation";
+import type { SyncCheckpoint } from "../models/sync";
 
 export const UPSERT_CONVERSATIONS_MESSAGE = "storage:upsert-conversations";
 export const GET_STORAGE_COUNTS_MESSAGE = "storage:get-counts";

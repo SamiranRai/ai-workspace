@@ -4,7 +4,7 @@ import {
   SYNC_NOW_MESSAGE,
   isRequestSyncNowMessage,
   type SyncNowMessage,
-} from "./sync-messages";
+} from "../shared/contracts/sync-messages";
 
 const PROVIDER_URL_PATTERNS = [
   "https://chatgpt.com/*",

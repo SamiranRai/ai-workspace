@@ -3,7 +3,7 @@ import { browser } from "wxt/browser";
 import type { AIProvider } from "../shared/models/conversation";
 import type { ProviderSource } from "../providers/provider-source";
 import { syncProvider, type SyncSummary } from "./sync-engine";
-import { isSyncNowMessage } from "./sync-messages";
+import { isSyncNowMessage } from "../shared/contracts/sync-messages";
 
 const DEBOUNCE_MS = 1_500;
 const RETRY_DELAYS_MS = [2_000, 6_000, 20_000];

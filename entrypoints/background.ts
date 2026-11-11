@@ -17,7 +17,7 @@ import {
   UPSERT_CONVERSATIONS_MESSAGE,
   type StorageFailure,
   type StorageResponse,
-} from "../src/storage/storage-messages";
+} from "../src/shared/contracts/storage-messages";
 
 import { registerSyncCoordinator } from "../src/sync/sync-coordinator";
 

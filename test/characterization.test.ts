@@ -4,7 +4,7 @@ import { normalizeChatGPTConversation } from "../src/providers/chatgpt/conversat
 import { normalizeClaudeConversation } from "../src/providers/claude/conversation-normalizer";
 import { normalizeGeminiConversation } from "../src/providers/gemini/conversation-normalizer";
 import { normalizeGrokConversation } from "../src/providers/grok/conversation-normalizer";
-import { isRequestSyncNowMessage, isSyncNowMessage } from "../src/sync/sync-messages";
+import { isRequestSyncNowMessage, isSyncNowMessage } from "../src/shared/contracts/sync-messages";
 import { ConversationRepository } from "../src/storage/conversation-repository";
 import { db } from "../src/storage/database";
 

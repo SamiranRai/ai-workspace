@@ -4,7 +4,7 @@ import { db } from "./database";
 import type {
   StorageCounts,
   UpsertConversationsResult,
-} from "./storage-messages";
+} from "../shared/contracts/storage-messages";
 
 export class ConversationRepository {
   /**
