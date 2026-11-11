@@ -1,8 +1,8 @@
-export const host_id = "aiworkspace-root";
+export const HOST_ID = "aiworkspace-root";
 
 const createHost = (): HTMLElement => {
   const host = document.createElement("div");
-  host.id = host_id;
+  host.id = HOST_ID;
   host.style.position = "fixed";
   host.style.inset = "0";
   host.style.width = "100vw";

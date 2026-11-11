@@ -3,7 +3,6 @@ import { browser } from "wxt/browser";
 import { ConversationRepository } from "../src/storage/conversation-repository";
 
 import {
-  isAIProvider as _unusedGuardKeepAlive,
   isConversationRecordList,
   isNonEmptyString,
   isRecord,
@@ -20,8 +19,6 @@ import {
 } from "../src/shared/contracts/storage-messages";
 
 import { registerSyncCoordinator } from "../src/sync/sync-coordinator";
-
-void _unusedGuardKeepAlive;
 
 // AI provider origins allowed to access shared conversation storage.
 const ALLOWED_PAGE_ORIGINS: ReadonlySet<string> = new Set([

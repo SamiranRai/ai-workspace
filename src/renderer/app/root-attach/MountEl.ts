@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { createElement } from "react";
 import { attachStyles } from "../../shared/shadow-styles";
-import createHost, { host_id } from "./create-host";
+import createHost, { HOST_ID } from "./create-host";
 import App from "../App";
 
 export const ownerToken = crypto.randomUUID();
@@ -31,14 +31,14 @@ export const ensureApp = (initialOpen = false) => {
   document.documentElement.setAttribute(ownerAttribute, ownerToken);
 
   // If the host already exists, we don't need to create it again.
-  if (document.getElementById(host_id)) return;
+  if (document.getElementById(HOST_ID)) return;
 
   // Create the host and render the panel into it.
   renderInto(createHost(), initialOpen);
 };
 
 export const openSearch = () => {
-  const host = document.getElementById(host_id);
+  const host = document.getElementById(HOST_ID);
   if (!host) {
     ensureApp(true);
     return;
@@ -49,5 +49,5 @@ export const openSearch = () => {
 
 export const resetApp = () => {
   document.documentElement.setAttribute(ownerAttribute, ownerToken);
-  document.getElementById(host_id)?.remove();
+  document.getElementById(HOST_ID)?.remove();
 };
