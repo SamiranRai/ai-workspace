@@ -18,8 +18,9 @@ conversation titles and messages across ChatGPT, Claude, Gemini, and Grok.
 | `src/sync/` | Provider-neutral source contract, delta synchronization engine, provider lifecycle watcher, background coordinator, and sync messages. |
 | `src/storage/` | Extension-owned Dexie database, repository operations, runtime-message client/server types, and payload validation. |
 | `src/search/` | Pure synchronous/asynchronous conversation search, filtering, matching, highlighting, snippets, and scoring. |
-| `src/renderer/` | In-page React application, shadow-DOM mounting, search feature UI/hooks, shared components, icons, and design-system styles. |
-| `src/types/` | Shared conversation/message and sync-checkpoint data types. |
+| `src/renderer/` | In-page React application, shadow-DOM mounting, search feature UI/hooks, shared components, icons, and design-system styles. The application shell is under `src/renderer/app/`. |
+| `src/shared/models/` | Shared conversation/message and sync-checkpoint data types. |
+| `src/shared/contracts/` | Runtime storage and synchronization message names, payloads, and response types. |
 | `test/` | Vitest setup for fake IndexedDB and Web Locks, plus storage and locking smoke tests. |
 | `docs/` | Architecture and implementation reports. |
 | `public/` | Static extension assets and icons. |
@@ -34,10 +35,10 @@ conversation titles and messages across ChatGPT, Claude, Gemini, and Grok.
 1. WXT loads one provider content script on a matching provider origin:
    `entrypoints/chatgpt.content.ts`, `claude.content.ts`, `gemini.content.ts`, or
    `grok.content.ts`.
-2. The content script calls `src/renderer/root-attach/observer.ts`, which resets
+2. The content script calls `src/renderer/app/root-attach/observer.ts`, which resets
    any prior mount and registers runtime/keyboard listeners. `MountEl.ts`
    creates `#aiworkspace-root`, attaches an open shadow root, injects registered
-   styles, and renders `src/renderer/App.tsx`.
+   styles, and renders `src/renderer/app/App.tsx`.
 3. `App.tsx` listens for the `OPEN_SEARCH` runtime message, the Cmd/Ctrl+X
    shortcut, and the `ai-workspace:open-search` DOM event. It opens
    `features/search/components/SearchPanel.tsx`.
@@ -45,7 +46,7 @@ conversation titles and messages across ChatGPT, Claude, Gemini, and Grok.
    `useRecentSearches` to manage query/filter state, cancellation, debouncing,
    and recent searches. `SearchResults` renders loading, error, empty, or result
    states; conversation/message components render selectable matches.
-5. On a selected message, `src/renderer/App.tsx` opens the normalized conversation
+5. On a selected message, `src/renderer/app/App.tsx` opens the normalized conversation
    URL in a new tab.
 
 ### Popup opens search
@@ -185,7 +186,7 @@ and the extension origin only.
 
 ### Provider-source interface
 
-`src/sync/provider-source.ts` is the internal adapter contract. Every provider
+`src/providers/provider-source.ts` is the internal adapter contract. Every provider
 must expose `platform`, `open`, `close`, `head`, `changedSince`, `newest`, `load`,
 `normalize`, and `isIncomplete`. Cursors are opaque to the sync engine; source
 entries are oldest-first pages, and loaded IDs must preserve request order.
@@ -204,9 +205,9 @@ entries are oldest-first pages, and loaded IDs must preserve request order.
   entrypoints use the common `sync-engine.ts` path.
 - Provider source readers and normalizers repeat substantial cursor, schema,
   timestamp, signature, and raw-record handling patterns across four providers.
-- `src/renderer/App.tsx` directly coordinates storage access, search orchestration,
-  caching, provider detection, and UI mapping; this is a broad boundary for a
-  future readability pass.
+- `src/renderer/app/App.tsx` still coordinates provider detection and UI mapping,
+  while `src/search/search-service.ts` owns storage access, caching, and the
+  search-engine call.
 - `getConversations()` transfers the complete local library in one runtime
   message and the renderer searches it in memory. This is simple but may become a
   size/performance constraint as the library grows.
