@@ -4,13 +4,10 @@ import type { ConversationRecord } from "../types/conversation";
 import type { SyncCheckpoint } from "../types/sync";
 import {
   GET_CONVERSATIONS_MESSAGE,
-  GET_STORAGE_COUNTS_MESSAGE,
   GET_SYNC_CHECKPOINT_MESSAGE,
   UPSERT_CONVERSATIONS_MESSAGE,
   type GetConversationsResponse,
-  type GetStorageCountsResponse,
   type GetSyncCheckpointResponse,
-  type StorageCounts,
   type StorageRequest,
   type StorageResponse,
   type UpsertConversationsResponse,
@@ -61,21 +58,6 @@ export async function getSyncCheckpoint(
     throw new Error(`Reading sync checkpoint failed: ${response.error}`);
   }
   return response.checkpoint;
-}
-
-export async function getStorageCounts(): Promise<StorageCounts> {
-  const response = await send<GetStorageCountsResponse>({
-    type: GET_STORAGE_COUNTS_MESSAGE,
-  });
-
-  if (!response.ok) {
-    throw new Error(`Reading storage counts failed: ${response.error}`);
-  }
-
-  return {
-    conversationCount: response.conversationCount,
-    messageCount: response.messageCount,
-  };
 }
 
 export async function getConversations(): Promise<ConversationRecord[]> {

@@ -49,10 +49,6 @@ export class ConversationRepository {
     return db.records.toArray();
   }
 
-  async deleteByKey(key: string): Promise<void> {
-    await db.records.delete(key);
-  }
-
   /** Diagnostic: streams every record to count nested messages, so it is O(all data). */
   getCounts(): Promise<StorageCounts> {
     return db.transaction("r", db.records, async () => {
