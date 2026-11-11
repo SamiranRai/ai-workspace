@@ -1,4 +1,4 @@
-import mountApp from "../src/renderer/root-attach/observer";
+import mountApp from "../src/renderer/app/root-attach/observer";
 
 export default defineContentScript({
   matches: ["*://*.google.com/*"],

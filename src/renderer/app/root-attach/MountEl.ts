@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
 import { createElement } from "react";
-import { attachStyles } from "../shared/shadow-styles";
+import { attachStyles } from "../../shared/shadow-styles";
 import createHost, { host_id } from "./create-host";
 import App from "../App";
 

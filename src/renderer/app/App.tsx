@@ -1,17 +1,17 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { searchStoredConversations } from "../search/search-service";
-import type { AIProvider } from "../shared/models/conversation";
-import { SearchPanel } from "./features/search";
+import { searchStoredConversations } from "../../search/search-service";
+import type { AIProvider } from "../../shared/models/conversation";
+import { SearchPanel } from "../features/search";
 import type {
   ConversationMatch,
   MessageMatch,
   SearchRequest,
-} from "./features/search";
-import { registerStyles } from "./shared/shadow-styles";
+} from "../features/search";
+import { registerStyles } from "../shared/shadow-styles";
 import css from "./App.css?inline";
-import designSystemCss from "./shared/design-system/index.css?inline";
+import designSystemCss from "../shared/design-system/index.css?inline";
 
 registerStyles(css, "base");
 registerStyles(designSystemCss, "base");

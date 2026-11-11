@@ -1,5 +1,5 @@
 import { createChatGPTSource } from "../src/providers/chatgpt/chatgpt-source";
-import mountApp from "../src/renderer/root-attach/observer";
+import mountApp from "../src/renderer/app/root-attach/observer";
 import { startProviderWatcher } from "../src/sync/provider-watcher";
 
 export default defineContentScript({
